@@ -1,6 +1,7 @@
-import React from 'react';
-import { FiMenu, FiX } from 'react-icons/fi';
-import { BiChip } from 'react-icons/bi';
+import React from "react";
+import { Link, NavLink } from "react-router-dom";
+import { FiMenu, FiX } from "react-icons/fi";
+import { BiChip } from "react-icons/bi";
 
 interface HeaderProps {
   onMenuToggle?: () => void;
@@ -13,15 +14,44 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMenuOpen }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Title */}
-          <div className="flex items-center space-x-3">
-            <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+          <Link to="/" className="flex items-center space-x-3 group">
+            <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm group-hover:bg-white/20 transition-colors">
               <BiChip className="w-6 h-6" />
             </div>
             <div>
               <h1 className="text-xl font-bold">MiniApp Essentials</h1>
               <p className="text-xs text-blue-100">Feature Showcase</p>
             </div>
-          </div>
+          </Link>
+
+          {/* Primary Navigation */}
+          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                `hover:text-blue-100 transition-colors ${
+                  isActive
+                    ? "text-white underline decoration-white/60"
+                    : "text-blue-100"
+                }`
+              }
+            >
+              Home
+            </NavLink>
+            <NavLink
+              to="/authentication/sso"
+              className={({ isActive }) =>
+                `hover:text-blue-100 transition-colors ${
+                  isActive
+                    ? "text-white underline decoration-white/60"
+                    : "text-blue-100"
+                }`
+              }
+            >
+              SSO Demo
+            </NavLink>
+          </nav>
 
           {/* Menu Toggle Button */}
           {onMenuToggle && (
