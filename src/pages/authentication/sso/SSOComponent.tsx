@@ -1,0 +1,260 @@
+import React, { useState } from "react";
+import {
+  FiUser,
+  FiKey,
+  FiCheckCircle,
+  FiAlertCircle,
+  FiPlus,
+  FiX,
+} from "react-icons/fi";
+import { getAuthCode } from "./getAuthCode";
+
+const AVAILABLE_SCOPES = [
+  {
+    value: "USER_ID",
+    label: "USER_ID",
+    description: "Get user_id. No authentication tooltip displayed.",
+  },
+  {
+    value: "USER_NICKNAME",
+    label: "USER_NICKNAME",
+    description: "Get user nickname.",
+  },
+  {
+    value: "USER_NAME",
+    label: "USER_NAME",
+    description: "Get user full name.",
+  },
+  {
+    value: "USER_LOGIN_ID",
+    label: "USER_LOGIN_ID",
+    description: "Get user login account.",
+  },
+  {
+    value: "HASH_LOGIN_ID",
+    label: "HASH_LOGIN_ID",
+    description: "Get hashed login account.",
+  },
+  {
+    value: "USER_AVATAR",
+    label: "USER_AVATAR",
+    description: "Get user avatar image.",
+  },
+  {
+    value: "USER_GENDER",
+    label: "USER_GENDER",
+    description: "Get user gender.",
+  },
+  {
+    value: "USER_BIRTHDAY",
+    label: "USER_BIRTHDAY",
+    description: "Get user birthday.",
+  },
+  {
+    value: "USER_NATIONALITY",
+    label: "USER_NATIONALITY",
+    description: "Get user nationality.",
+  },
+  {
+    value: "USER_CONTACTINFO",
+    label: "USER_CONTACTINFO",
+    description: "Get user contact information.",
+  },
+  {
+    value: "auth_base",
+    label: "auth_base",
+    description: "Get user_id without authentication dialog.",
+  },
+  {
+    value: "auth_user",
+    label: "auth_user",
+    description: "Get complete user account information.",
+  },
+];
+
+export const SSOComponent: React.FC = () => {
+  const [appId, setAppId] = useState("");
+  const [selectedScopes, setSelectedScopes] = useState(["auth_user"]);
+  const [authCode, setAuthCode] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showScopeDropdown, setShowScopeDropdown] = useState(false);
+
+  const handleAddScope = (scope: string) => {
+    if (!selectedScopes.includes(scope)) {
+      setSelectedScopes([...selectedScopes, scope]);
+    }
+    setShowScopeDropdown(false);
+  };
+
+  const handleRemoveScope = (scope: string) => {
+    setSelectedScopes(selectedScopes.filter((s) => s !== scope));
+  };
+
+  const handleGetAuthCode = async () => {
+    if (!appId.trim()) {
+      setError("Please enter App ID");
+      return;
+    }
+
+    if (selectedScopes.length === 0) {
+      setError("Please select at least one scope");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setAuthCode("");
+
+    try {
+      const code = await getAuthCode(appId, selectedScopes);
+      setAuthCode(code);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to get auth code");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const availableScopes = AVAILABLE_SCOPES.filter(
+    (scope) => !selectedScopes.includes(scope.value)
+  );
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          <FiUser className="inline mr-2" />
+          App ID
+        </label>
+        <input
+          type="text"
+          value={appId}
+          onChange={(e) => setAppId(e.target.value)}
+          placeholder="Enter your App ID"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+        />
+      </div>
+
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          <FiKey className="inline mr-2" />
+          Scopes
+        </label>
+
+        <div className="flex flex-wrap gap-2 mb-3">
+          {selectedScopes.map((scope) => {
+            const scopeInfo = AVAILABLE_SCOPES.find((s) => s.value === scope);
+            return (
+              <div
+                key={scope}
+                className="inline-flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                title={scopeInfo?.description}
+              >
+                <span>{scope}</span>
+                <button
+                  onClick={() => handleRemoveScope(scope)}
+                  className="ml-2 hover:text-blue-900"
+                >
+                  <FiX size={16} />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="relative">
+          <button
+            onClick={() => setShowScopeDropdown(!showScopeDropdown)}
+            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+          >
+            <FiPlus className="mr-2" />
+            Add Scope
+          </button>
+
+          {showScopeDropdown && availableScopes.length > 0 && (
+            <div className="absolute z-10 mt-2 w-96 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-y-auto">
+              {availableScopes.map((scope) => (
+                <button
+                  key={scope.value}
+                  onClick={() => handleAddScope(scope.value)}
+                  className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                >
+                  <div className="font-medium text-gray-900">{scope.label}</div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {scope.description}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {showScopeDropdown && availableScopes.length === 0 && (
+            <div className="absolute z-10 mt-2 w-96 bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-3 text-sm text-gray-500">
+              All scopes have been selected
+            </div>
+          )}
+        </div>
+      </div>
+
+      <button
+        onClick={handleGetAuthCode}
+        disabled={loading}
+        className={`w-full py-3 px-6 rounded-lg font-medium text-white transition-colors ${
+          loading
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-blue-600 hover:bg-blue-700"
+        }`}
+      >
+        {loading ? "Getting Auth Code..." : "Get Auth Code"}
+      </button>
+
+      {error && (
+        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
+          <FiAlertCircle className="text-red-500 mt-0.5 mr-3 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-red-800">Error</p>
+            <p className="text-sm text-red-600 mt-1">{error}</p>
+          </div>
+        </div>
+      )}
+
+      {authCode && (
+        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-start mb-2">
+            <FiCheckCircle className="text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-green-800">Success!</p>
+              <p className="text-xs text-green-600 mt-1">
+                Auth code retrieved successfully
+              </p>
+            </div>
+          </div>
+          <div className="mt-3 p-3 bg-white rounded border border-green-200">
+            <p className="text-xs text-gray-500 mb-1">Auth Code:</p>
+            <code className="text-sm font-mono text-gray-800 break-all">
+              {authCode}
+            </code>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-blue-900 mb-2">
+          About Scopes
+        </h3>
+        <ul className="space-y-1 text-xs text-blue-800">
+          <li>• Scopes define what user information your app can access</li>
+          <li>
+            • <code className="bg-blue-100 px-1 py-0.5 rounded">auth_user</code>{" "}
+            provides full user profile access
+          </li>
+          <li>
+            • <code className="bg-blue-100 px-1 py-0.5 rounded">auth_base</code>{" "}
+            only provides user_id without auth dialog
+          </li>
+        </ul>
+      </div>
+    </div>
+  );
+};

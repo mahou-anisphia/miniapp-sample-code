@@ -4,7 +4,7 @@ import "./index.css"; // Ensure Tailwind is imported
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { HomePage } from "./pages/HomePage";
-import { SSOPage } from "./pages/authentication/Page";
+import { AuthenticationPage } from "./pages/authentication/Page";
 
 function App() {
   return (
@@ -14,7 +14,7 @@ function App() {
         <main className="flex-1">
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/authentication/sso" element={<SSOPage />} />
+            <Route path="/authentication" element={<AuthenticationPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

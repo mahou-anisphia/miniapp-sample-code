@@ -29,7 +29,7 @@ export const HomePage: React.FC = () => {
         "User data access",
         "Token management",
       ],
-      demoPath: "/authentication/sso",
+      demoPath: "/authentication",
     },
     {
       icon: FiSmartphone,
