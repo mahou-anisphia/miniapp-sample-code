@@ -6,6 +6,7 @@ import { Footer } from "./components/Footer";
 import { HomePage } from "./pages/HomePage";
 import { SSOPage } from "./pages/authentication/Page";
 import { DevicePermissionsPage } from "./pages/permissions/Page";
+import { BaseAPIsPage } from "./pages/base/Page"
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -26,7 +27,7 @@ function App() {
             <Route path="/permissions/device" element={<DevicePermissionsPage />} />
             
             {/* Placeholder routes for other categories */}
-            <Route path="/base/*" element={<ComingSoonPage category="Base APIs" />} />
+            <Route path="/base/*" element={<BaseAPIsPage />} />
             <Route path="/navigation/*" element={<ComingSoonPage category="Navigation" />} />
             <Route path="/interaction/*" element={<ComingSoonPage category="Interaction" />} />
             <Route path="/multimedia/*" element={<ComingSoonPage category="Multimedia" />} />
