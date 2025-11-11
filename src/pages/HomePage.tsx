@@ -2,15 +2,23 @@ import React, { useState } from "react";
 import { FeatureCard } from "../components/FeatureCard";
 import {
   FiLock,
-  FiSmartphone,
+  FiUser,
+  FiGrid,
   FiNavigation,
   FiImage,
-  FiDatabase,
+  FiFile,
   FiMapPin,
+  FiDatabase,
+  FiSmartphone,
   FiWifi,
-  FiCpu,
-  FiLayout,
-  FiGitBranch,
+  FiMonitor,
+  FiActivity,
+  FiVolume2,
+  FiPhone,
+  FiUsers,
+  FiCamera,
+  FiZap,
+  FiBluetooth,
 } from "react-icons/fi";
 
 export const HomePage: React.FC = () => {
@@ -19,143 +27,278 @@ export const HomePage: React.FC = () => {
   const featureCategories = [
     {
       icon: FiLock,
-      title: "Authentication & Permissions",
-      description: "SSO, OAuth, and device permissions",
+      title: "Device Permissions",
+      description: "Request and manage device permissions",
       color: "blue",
       features: [
-        "SSO with wv.getAuthCode",
-        "Device permission handling",
-        "Authorization flows",
-        "User data access",
-        "Token management",
+        "Get device permissions status",
+        "Request camera permission",
+        "Request location permission",
+        "Authorization handling",
       ],
-      demoPath: "/authentication",
+      demoPath: "/permissions/device",
     },
     {
-      icon: FiSmartphone,
-      title: "Device & System",
-      description: "Access device features and system info",
+      icon: FiUser,
+      title: "User Data Permission",
+      description: "SSO authentication and user authorization",
+      color: "purple",
+      features: [
+        "Get auth code via wv.getAuthCode",
+        "SSO integration",
+        "User authentication flow",
+      ],
+      demoPath: "/authentication/sso",
+    },
+    {
+      icon: FiGrid,
+      title: "Base APIs",
+      description: "Core utilities and base functionality",
       color: "green",
       features: [
-        "Device information",
         "Clipboard operations",
-        "App install checks",
-        "Lifecycle events (background/active)",
-        "System notifications",
+        "Check app installation",
+        "Toast notifications",
+        "Open external browser",
+        "Background color control",
+        "API availability check",
+        "Close MiniApp",
       ],
-      demoPath: "/features/device",
+      demoPath: "/base/clipboard",
     },
     {
       icon: FiNavigation,
-      title: "Navigation & Routing",
-      description: "Page navigation and deep linking",
-      color: "purple",
+      title: "Navigation",
+      description: "Page navigation and routing",
+      color: "indigo",
       features: [
-        "Stack navigation",
-        "Tab navigation",
-        "Deep linking",
-        "Route parameters",
-        "Navigation guards",
+        "Navigate back (pop)",
+        "Navigate forward (push)",
+        "Navigate to other MiniApps",
+        "Deep linking support",
       ],
-      demoPath: "/features/navigation",
+      demoPath: "/navigation/pop",
+    },
+    {
+      icon: FiGrid,
+      title: "Interaction",
+      description: "UI interactions, dialogs, and alerts",
+      color: "pink",
+      features: [
+        "Loading indicators",
+        "Keyboard control",
+        "Toast messages",
+        "Alert, confirm, prompt dialogs",
+        "Action sheets",
+        "Navigation bar customization",
+      ],
+      demoPath: "/interaction/loading",
     },
     {
       icon: FiImage,
-      title: "Media & Files",
-      description: "Camera, images, and file handling",
+      title: "Multimedia",
+      description: "Images, video, audio, and camera",
       color: "orange",
       features: [
-        "Image picker",
-        "Camera access",
-        "File upload/download",
-        "Image manipulation",
-        "Video player integration",
+        "Save images to album",
+        "Choose and save videos",
+        "Play system sounds",
+        "Take photos with camera",
+        "Local storage operations",
       ],
-      demoPath: "/features/media",
+      demoPath: "/multimedia/image",
     },
     {
-      icon: FiDatabase,
-      title: "Storage & Cache",
-      description: "Local and secure storage solutions",
-      color: "pink",
+      icon: FiFile,
+      title: "File",
+      description: "File operations and management",
+      color: "yellow",
       features: [
-        "LocalStorage wrapper",
-        "Secure storage",
-        "Cache management",
-        "Offline data sync",
-        "Storage quota handling",
+        "Read and write files",
+        "Get file information",
+        "Download files",
+        "Upload files",
+        "Choose files from device",
       ],
-      demoPath: "/features/storage",
+      demoPath: "/file/read-write",
     },
     {
       icon: FiMapPin,
-      title: "Location Services",
-      description: "GPS and location-based features",
-      color: "indigo",
+      title: "Geographical Location",
+      description: "GPS and location services",
+      color: "red",
       features: [
         "Get current location",
-        "Map integration",
-        "Geofencing",
-        "Location tracking",
-        "Distance calculations",
+        "Search locations",
+        "GPS coordinates",
       ],
-      demoPath: "/features/location",
+      demoPath: "/location/get",
+    },
+    {
+      icon: FiDatabase,
+      title: "Cookie",
+      description: "Cookie read and write operations",
+      color: "teal",
+      features: [
+        "Read cookies",
+        "Write cookies",
+        "Cookie management",
+      ],
+      demoPath: "/cookie/operations",
+    },
+    {
+      icon: FiSmartphone,
+      title: "Device",
+      description: "Device information and capabilities",
+      color: "cyan",
+      features: [
+        "Get system information",
+        "Device detection",
+        "Check if simulator",
+        "Get device year",
+        "Safe area insets",
+      ],
+      demoPath: "/device/system-info",
     },
     {
       icon: FiWifi,
-      title: "Network & API",
-      description: "HTTP requests and real-time communication",
+      title: "Network",
+      description: "Network status and connectivity",
       color: "blue",
       features: [
-        "Axios configuration",
-        "Interceptors setup",
-        "WebSocket demos",
-        "Error handling",
-        "Retry logic",
+        "Get network type",
+        "Check connectivity",
+        "Network status monitoring",
       ],
-      demoPath: "/features/network",
+      demoPath: "/network/type",
     },
     {
-      icon: FiCpu,
-      title: "Native Features",
-      description: "Platform-specific integrations",
-      color: "green",
-      features: [
-        "QR/Barcode scanner",
-        "Payment integration",
-        "Push notifications",
-        "Bluetooth (BLE)",
-        "Share functionality",
-      ],
-      demoPath: "/features/native",
-    },
-    {
-      icon: FiLayout,
-      title: "UI Components",
-      description: "Reusable UI elements and patterns",
+      icon: FiMonitor,
+      title: "Screen",
+      description: "Screen orientation and brightness",
       color: "purple",
       features: [
-        "Button variants",
-        "Form elements",
-        "Modals & dialogs",
-        "Toast notifications",
-        "Loading states",
+        "Get screen orientation",
+        "Set screen orientation",
+        "Adjust brightness",
+        "Screen capture",
       ],
-      demoPath: "/features/ui",
+      demoPath: "/screen/orientation",
     },
     {
-      icon: FiGitBranch,
-      title: "State Management",
-      description: "Global state and data flow",
+      icon: FiActivity,
+      title: "Motion Detection",
+      description: "Accelerometer, gyroscope, and motion events",
+      color: "green",
+      features: [
+        "Detect blow gesture",
+        "Detect shake gesture",
+        "Accelerometer data",
+        "Gyroscope data",
+        "Compass data",
+        "Device vibration",
+      ],
+      demoPath: "/motion/gestures",
+    },
+    {
+      icon: FiVolume2,
+      title: "Sound",
+      description: "Sound notifications and alerts",
       color: "orange",
       features: [
-        "Zustand store examples",
-        "Context API patterns",
-        "Persist middleware",
-        "Async state handling",
-        "Devtools integration",
+        "Play beep sound",
+        "System notifications",
       ],
-      demoPath: "/features/state",
+      demoPath: "/sound/beep",
+    },
+    {
+      icon: FiPhone,
+      title: "Call",
+      description: "Phone call functionality",
+      color: "pink",
+      features: [
+        "Dial phone number",
+        "Make phone calls",
+      ],
+      demoPath: "/call/dial",
+    },
+    {
+      icon: FiSmartphone,
+      title: "App Information",
+      description: "Application state and settings",
+      color: "indigo",
+      features: [
+        "Get app state",
+        "Notification settings",
+        "Open app settings",
+      ],
+      demoPath: "/app/state",
+    },
+    {
+      icon: FiUsers,
+      title: "Address Book",
+      description: "Access and manage contacts",
+      color: "teal",
+      features: [
+        "Request contacts permission",
+        "Check authorization status",
+        "Choose contacts",
+        "Find contacts",
+        "Add phone contact",
+      ],
+      demoPath: "/contacts/auth",
+    },
+    {
+      icon: FiCamera,
+      title: "Scan",
+      description: "QR code and barcode scanning",
+      color: "cyan",
+      features: [
+        "Scan QR codes",
+        "Scan barcodes",
+        "Camera integration",
+      ],
+      demoPath: "/scan/qr",
+    },
+    {
+      icon: FiZap,
+      title: "Battery",
+      description: "Battery information",
+      color: "yellow",
+      features: [
+        "Get battery level",
+        "Battery charging status",
+        "Battery info sync/async",
+      ],
+      demoPath: "/battery/info",
+    },
+    {
+      icon: FiBluetooth,
+      title: "Bluetooth",
+      description: "Bluetooth Low Energy (BLE) operations",
+      color: "blue",
+      features: [
+        "Request BLE authorization",
+        "Scan for devices",
+        "Connect to devices",
+        "Read/write characteristics",
+        "Notifications handling",
+      ],
+      demoPath: "/bluetooth/scan",
+    },
+    {
+      icon: FiActivity,
+      title: "Other Features",
+      description: "App lifecycle and special events",
+      color: "purple",
+      features: [
+        "WindVane ready event",
+        "App background event",
+        "App active event",
+        "Pull to refresh",
+        "Infinite scroll",
+      ],
+      demoPath: "/events/lifecycle",
     },
   ];
 
@@ -175,18 +318,17 @@ export const HomePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              MiniApp Essentials Pack
+              WindVane API Showcase
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Explore comprehensive demos of WindVane APIs, common libraries,
-              and best practices for MiniApp development
+              Comprehensive demos of WindVane APIs for Viettel MiniApp Platform development
             </p>
 
             {/* Search Bar */}
             <div className="max-w-2xl mx-auto">
               <input
                 type="text"
-                placeholder="Search features... (e.g., 'camera', 'storage', 'auth')"
+                placeholder="Search APIs... (e.g., 'camera', 'location', 'bluetooth')"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full px-6 py-4 rounded-full border-2 border-gray-200 focus:border-blue-500 focus:outline-none shadow-sm text-lg"
@@ -200,7 +342,7 @@ export const HomePage: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Feature Categories
+            API Categories
           </h2>
           <p className="text-gray-600">
             {filteredFeatures.length} categor
@@ -225,7 +367,7 @@ export const HomePage: React.FC = () => {
         ) : (
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">
-              No features found matching "{searchQuery}"
+              No APIs found matching "{searchQuery}"
             </p>
             <button
               onClick={() => setSearchQuery("")}
@@ -242,12 +384,12 @@ export const HomePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-4xl font-bold text-blue-600 mb-2">10+</div>
-              <div className="text-gray-600">Feature Categories</div>
+              <div className="text-4xl font-bold text-blue-600 mb-2">21</div>
+              <div className="text-gray-600">API Categories</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-green-600 mb-2">50+</div>
-              <div className="text-gray-600">Code Examples</div>
+              <div className="text-4xl font-bold text-green-600 mb-2">80+</div>
+              <div className="text-gray-600">WindVane APIs</div>
             </div>
             <div>
               <div className="text-4xl font-bold text-purple-600 mb-2">
@@ -257,9 +399,9 @@ export const HomePage: React.FC = () => {
             </div>
             <div>
               <div className="text-4xl font-bold text-orange-600 mb-2">
-                Modern
+                Official
               </div>
-              <div className="text-gray-600">Best Practices</div>
+              <div className="text-gray-600">Documentation</div>
             </div>
           </div>
         </div>

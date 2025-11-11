@@ -1,17 +1,128 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { FiLock, FiShield, FiCheckSquare } from 'react-icons/fi';
-import { SSOComponent } from './sso/SSOComponent';
-import { GetSettingComponent } from './getSetting/GetSettingComponent';
-import { AuthorizeComponent } from './authorize/AuthorizeComponent';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { getAuthCode } from "./sso/getAuthCode";
+import {
+  FiUser,
+  FiKey,
+  FiCheckCircle,
+  FiAlertCircle,
+  FiPlus,
+  FiX,
+} from "react-icons/fi";
 
-type Tab = 'sso' | 'getSetting' | 'authorize';
+const AVAILABLE_SCOPES = [
+  {
+    value: "USER_ID",
+    label: "USER_ID",
+    description: "Get user_id. No authentication tooltip displayed.",
+  },
+  {
+    value: "USER_NICKNAME",
+    label: "USER_NICKNAME",
+    description: "Get user nickname.",
+  },
+  {
+    value: "USER_NAME",
+    label: "USER_NAME",
+    description: "Get user full name.",
+  },
+  {
+    value: "USER_LOGIN_ID",
+    label: "USER_LOGIN_ID",
+    description: "Get user login account.",
+  },
+  {
+    value: "HASH_LOGIN_ID",
+    label: "HASH_LOGIN_ID",
+    description: "Get hashed login account.",
+  },
+  {
+    value: "USER_AVATAR",
+    label: "USER_AVATAR",
+    description: "Get user avatar image.",
+  },
+  {
+    value: "USER_GENDER",
+    label: "USER_GENDER",
+    description: "Get user gender.",
+  },
+  {
+    value: "USER_BIRTHDAY",
+    label: "USER_BIRTHDAY",
+    description: "Get user birthday.",
+  },
+  {
+    value: "USER_NATIONALITY",
+    label: "USER_NATIONALITY",
+    description: "Get user nationality.",
+  },
+  {
+    value: "USER_CONTACTINFO",
+    label: "USER_CONTACTINFO",
+    description: "Get user contact information.",
+  },
+  {
+    value: "auth_base",
+    label: "auth_base",
+    description: "Get user_id without authentication dialog.",
+  },
+  {
+    value: "auth_user",
+    label: "auth_user",
+    description: "Get complete user account information.",
+  },
+];
 
-export const AuthenticationPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<Tab>('sso');
+export const SSOPage: React.FC = () => {
+  const [appId, setAppId] = useState("");
+  const [selectedScopes, setSelectedScopes] = useState(["auth_user"]);
+  const [authCode, setAuthCode] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showScopeDropdown, setShowScopeDropdown] = useState(false);
+
+  const handleAddScope = (scope: string) => {
+    if (!selectedScopes.includes(scope)) {
+      setSelectedScopes([...selectedScopes, scope]);
+    }
+    setShowScopeDropdown(false);
+  };
+
+  const handleRemoveScope = (scope: string) => {
+    setSelectedScopes(selectedScopes.filter((s) => s !== scope));
+  };
+
+  const handleGetAuthCode = async () => {
+    if (!appId.trim()) {
+      setError("Please enter App ID");
+      return;
+    }
+
+    if (selectedScopes.length === 0) {
+      setError("Please select at least one scope");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setAuthCode("");
+
+    try {
+      const code = await getAuthCode(appId, selectedScopes);
+      setAuthCode(code);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to get auth code");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const availableScopes = AVAILABLE_SCOPES.filter(
+    (scope) => !selectedScopes.includes(scope.value)
+  );
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="mb-6">
         <Link
           to="/"
@@ -21,122 +132,233 @@ export const AuthenticationPage: React.FC = () => {
         </Link>
       </div>
 
+      {/* Title */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Authentication & Permissions
+          SSO Authentication
         </h1>
         <p className="text-gray-600">
-          SSO authentication and device permission management
+          Get auth code for SSO flow using wv.getAuthCode API
         </p>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="mb-6 border-b border-gray-200">
-        <div className="flex space-x-8">
-          <button
-            onClick={() => setActiveTab('sso')}
-            className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center ${
-              activeTab === 'sso'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
+      {/* Main Card */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        {/* App ID Input */}
+        <div className="mb-6">
+          <label
+            htmlFor="appId"
+            className="block text-sm font-medium text-gray-700 mb-2"
           >
-            <FiLock className="mr-2" />
-            SSO Authentication
-          </button>
-          <button
-            onClick={() => setActiveTab('getSetting')}
-            className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center ${
-              activeTab === 'getSetting'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            <FiCheckSquare className="mr-2" />
-            Get Settings
-          </button>
-          <button
-            onClick={() => setActiveTab('authorize')}
-            className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center ${
-              activeTab === 'authorize'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            <FiShield className="mr-2" />
-            Authorize
-          </button>
+            <FiUser className="inline mr-2" />
+            App ID
+          </label>
+          <input
+            id="appId"
+            type="text"
+            value={appId}
+            onChange={(e) => setAppId(e.target.value)}
+            placeholder="Enter your App ID"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          />
+        </div>
+
+        {/* Scopes Selection */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            <FiKey className="inline mr-2" />
+            Scopes
+          </label>
+
+          {/* Selected Scopes */}
+          <div className="flex flex-wrap gap-2 mb-3">
+            {selectedScopes.map((scope) => {
+              const scopeInfo = AVAILABLE_SCOPES.find((s) => s.value === scope);
+              return (
+                <div
+                  key={scope}
+                  className="inline-flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                  title={scopeInfo?.description}
+                >
+                  <span>{scope}</span>
+                  <button
+                    onClick={() => handleRemoveScope(scope)}
+                    className="ml-2 hover:text-blue-900"
+                    aria-label={`Remove ${scope}`}
+                  >
+                    <FiX size={16} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Add Scope Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowScopeDropdown(!showScopeDropdown)}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <FiPlus className="mr-2" />
+              Add Scope
+            </button>
+
+            {showScopeDropdown && availableScopes.length > 0 && (
+              <>
+                {/* Backdrop */}
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setShowScopeDropdown(false)}
+                />
+
+                {/* Dropdown Menu */}
+                <div className="absolute z-20 mt-2 w-96 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-y-auto">
+                  {availableScopes.map((scope) => (
+                    <button
+                      key={scope.value}
+                      onClick={() => handleAddScope(scope.value)}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors"
+                    >
+                      <div className="font-medium text-gray-900">
+                        {scope.label}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {scope.description}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {showScopeDropdown && availableScopes.length === 0 && (
+              <>
+                {/* Backdrop */}
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setShowScopeDropdown(false)}
+                />
+
+                {/* All Selected Message */}
+                <div className="absolute z-20 mt-2 w-96 bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-3 text-sm text-gray-500">
+                  All scopes have been selected
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Get Auth Code Button */}
+        <button
+          onClick={handleGetAuthCode}
+          disabled={loading}
+          className={`w-full py-3 px-6 rounded-lg font-medium text-white transition-colors ${
+            loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
+        >
+          {loading ? (
+            <span className="flex items-center justify-center">
+              <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  fill="none"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              Getting Auth Code...
+            </span>
+          ) : (
+            <span className="flex items-center justify-center">
+              <FiKey className="mr-2" />
+              Get Auth Code
+            </span>
+          )}
+        </button>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
+            <FiAlertCircle className="text-red-500 mt-0.5 mr-3 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-red-800">Error</p>
+              <p className="text-sm text-red-600 mt-1">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Success Message with Auth Code */}
+        {authCode && (
+          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-start mb-2">
+              <FiCheckCircle className="text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-green-800">Success!</p>
+                <p className="text-xs text-green-600 mt-1">
+                  Auth code retrieved successfully
+                </p>
+              </div>
+            </div>
+            <div className="mt-3 p-3 bg-white rounded border border-green-200">
+              <p className="text-xs text-gray-500 mb-1">Auth Code:</p>
+              <code className="text-sm font-mono text-gray-800 break-all">
+                {authCode}
+              </code>
+            </div>
+          </div>
+        )}
+
+        {/* Scopes Info */}
+        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-blue-900 mb-2">
+            About Scopes
+          </h3>
+          <ul className="space-y-1 text-xs text-blue-800">
+            <li>• Scopes define what user information your app can access</li>
+            <li>
+              • <code className="bg-blue-100 px-1 py-0.5 rounded">auth_user</code>{" "}
+              provides full user profile access
+            </li>
+            <li>
+              • <code className="bg-blue-100 px-1 py-0.5 rounded">auth_base</code>{" "}
+              only provides user_id without auth dialog
+            </li>
+            <li>• Individual scopes (USER_NAME, USER_AVATAR, etc.) request specific fields</li>
+            <li>• Multiple scopes can be combined in a single request</li>
+          </ul>
         </div>
       </div>
 
-      {/* Tab Content */}
-      <div>
-        {activeTab === 'sso' && (
-          <div>
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                SSO Authentication (wv.getAuthCode)
-              </h2>
-              <p className="text-sm text-gray-600">
-                Get authentication code with customizable scopes for user data access
-              </p>
-            </div>
-            <SSOComponent />
-          </div>
-        )}
-
-        {activeTab === 'getSetting' && (
-          <div>
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                Get Permission Settings (wv.getSetting)
-              </h2>
-              <p className="text-sm text-gray-600">
-                Check which device permissions have been granted to your MiniApp
-              </p>
-            </div>
-            <GetSettingComponent />
-          </div>
-        )}
-
-        {activeTab === 'authorize' && (
-          <div>
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                Request Permission (wv.authorize)
-              </h2>
-              <p className="text-sm text-gray-600">
-                Request device permissions from the user with native dialogs
-              </p>
-            </div>
-            <AuthorizeComponent />
-          </div>
-        )}
-      </div>
-
-      {/* General Info */}
-      <div className="mt-8 bg-gray-50 border border-gray-200 rounded-lg p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">
-          About Authentication & Permissions
+      {/* Info Section */}
+      <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
+        <h2 className="text-lg font-semibold text-purple-900 mb-3">
+          About SSO Authentication
         </h2>
-        <div className="space-y-2 text-sm text-gray-700">
-          <p>
-            <strong>SSO (wv.getAuthCode):</strong> Authenticates users and retrieves an auth code 
-            that can be exchanged for user information on your backend.
-          </p>
-          <p>
-            <strong>Get Settings (wv.getSetting):</strong> Checks the current permission status 
-            to know which device features your app can access.
-          </p>
-          <p>
-            <strong>Authorize (wv.authorize):</strong> Requests specific device permissions from 
-            the user through native permission dialogs.
-          </p>
-          <p className="mt-4 text-xs text-gray-500">
-            💡 Best practice: Always check settings before requesting authorization to avoid 
-            showing redundant permission prompts to users.
-          </p>
-        </div>
+        <ul className="space-y-2 text-sm text-purple-800">
+          <li>
+            • This demo uses{" "}
+            <code className="bg-purple-100 px-2 py-0.5 rounded">
+              wv.getAuthCode
+            </code>{" "}
+            API
+          </li>
+          <li>
+            • The App ID identifies your Mini App in the Viettel ecosystem
+          </li>
+          <li>• Auth code can be exchanged for user tokens on your backend</li>
+          <li>• Auth codes are short-lived and should be used immediately</li>
+          <li>• This is part of the User Data Permission category</li>
+        </ul>
       </div>
     </div>
   );

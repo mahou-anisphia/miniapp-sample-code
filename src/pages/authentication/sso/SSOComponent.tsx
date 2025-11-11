@@ -122,6 +122,7 @@ export const SSOComponent: React.FC = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      {/* App ID Input */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
           <FiUser className="inline mr-2" />
@@ -136,12 +137,14 @@ export const SSOComponent: React.FC = () => {
         />
       </div>
 
+      {/* Scopes Selection */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
           <FiKey className="inline mr-2" />
           Scopes
         </label>
 
+        {/* Selected Scopes */}
         <div className="flex flex-wrap gap-2 mb-3">
           {selectedScopes.map((scope) => {
             const scopeInfo = AVAILABLE_SCOPES.find((s) => s.value === scope);
@@ -155,6 +158,7 @@ export const SSOComponent: React.FC = () => {
                 <button
                   onClick={() => handleRemoveScope(scope)}
                   className="ml-2 hover:text-blue-900"
+                  aria-label={`Remove ${scope}`}
                 >
                   <FiX size={16} />
                 </button>
@@ -163,40 +167,62 @@ export const SSOComponent: React.FC = () => {
           })}
         </div>
 
+        {/* Add Scope Dropdown */}
         <div className="relative">
           <button
             onClick={() => setShowScopeDropdown(!showScopeDropdown)}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
           >
             <FiPlus className="mr-2" />
             Add Scope
           </button>
 
           {showScopeDropdown && availableScopes.length > 0 && (
-            <div className="absolute z-10 mt-2 w-96 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-y-auto">
-              {availableScopes.map((scope) => (
-                <button
-                  key={scope.value}
-                  onClick={() => handleAddScope(scope.value)}
-                  className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
-                >
-                  <div className="font-medium text-gray-900">{scope.label}</div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {scope.description}
-                  </div>
-                </button>
-              ))}
-            </div>
+            <>
+              {/* Backdrop */}
+              <div
+                className="fixed inset-0 z-10"
+                onClick={() => setShowScopeDropdown(false)}
+              />
+
+              {/* Dropdown Menu */}
+              <div className="absolute z-20 mt-2 w-96 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-y-auto">
+                {availableScopes.map((scope) => (
+                  <button
+                    key={scope.value}
+                    onClick={() => handleAddScope(scope.value)}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors"
+                  >
+                    <div className="font-medium text-gray-900">
+                      {scope.label}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {scope.description}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </>
           )}
 
           {showScopeDropdown && availableScopes.length === 0 && (
-            <div className="absolute z-10 mt-2 w-96 bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-3 text-sm text-gray-500">
-              All scopes have been selected
-            </div>
+            <>
+              {/* Backdrop */}
+              <div
+                className="fixed inset-0 z-10"
+                onClick={() => setShowScopeDropdown(false)}
+              />
+
+              {/* All Selected Message */}
+              <div className="absolute z-20 mt-2 w-96 bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-3 text-sm text-gray-500">
+                All scopes have been selected
+              </div>
+            </>
           )}
         </div>
       </div>
 
+      {/* Get Auth Code Button */}
       <button
         onClick={handleGetAuthCode}
         disabled={loading}
@@ -206,9 +232,35 @@ export const SSOComponent: React.FC = () => {
             : "bg-blue-600 hover:bg-blue-700"
         }`}
       >
-        {loading ? "Getting Auth Code..." : "Get Auth Code"}
+        {loading ? (
+          <span className="flex items-center justify-center">
+            <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="none"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+            Getting Auth Code...
+          </span>
+        ) : (
+          <span className="flex items-center justify-center">
+            <FiKey className="mr-2" />
+            Get Auth Code
+          </span>
+        )}
       </button>
 
+      {/* Error Message */}
       {error && (
         <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
           <FiAlertCircle className="text-red-500 mt-0.5 mr-3 flex-shrink-0" />
@@ -219,6 +271,7 @@ export const SSOComponent: React.FC = () => {
         </div>
       )}
 
+      {/* Success Message with Auth Code */}
       {authCode && (
         <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
           <div className="flex items-start mb-2">
@@ -239,6 +292,7 @@ export const SSOComponent: React.FC = () => {
         </div>
       )}
 
+      {/* Scopes Info */}
       <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h3 className="text-sm font-semibold text-blue-900 mb-2">
           About Scopes
@@ -253,6 +307,8 @@ export const SSOComponent: React.FC = () => {
             • <code className="bg-blue-100 px-1 py-0.5 rounded">auth_base</code>{" "}
             only provides user_id without auth dialog
           </li>
+          <li>• Individual scopes (USER_NAME, USER_AVATAR, etc.) request specific fields</li>
+          <li>• Multiple scopes can be combined in a single request</li>
         </ul>
       </div>
     </div>
