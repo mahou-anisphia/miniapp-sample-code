@@ -1,7 +1,18 @@
-interface GetSettingResult {
-  authSetting: {
-    [key: string]: string;
-  };
+export interface AuthSetting {
+  location?: boolean;
+  camera?: boolean;
+  bluetooth?: boolean;
+  album?: boolean;
+  contacts?: boolean;
+  microphone?: boolean;
+  file?: boolean;
+  call?: boolean;
+  vibrate?: boolean;
+  screen?: boolean;
+}
+
+export interface GetSettingResult {
+  authSetting: AuthSetting;
 }
 
 export const getSetting = (): Promise<GetSettingResult> => {

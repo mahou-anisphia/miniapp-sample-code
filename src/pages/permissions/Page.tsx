@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { getSetting } from "./device/getSetting";
+import { getSetting, AuthSetting } from "./device/getSetting";
 import { authorize, PermissionScope } from "./device/authorize";
 import { 
   FiLock, 
@@ -18,12 +18,8 @@ import {
   FiMonitor
 } from "react-icons/fi";
 
-interface PermissionStatus {
-  [key: string]: string | undefined;
-}
-
 export const DevicePermissionsPage: React.FC = () => {
-  const [permissionStatus, setPermissionStatus] = useState<PermissionStatus>({});
+  const [permissionStatus, setPermissionStatus] = useState<AuthSetting>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -55,7 +51,7 @@ export const DevicePermissionsPage: React.FC = () => {
       
       // Check if authorization was successful
       if (result.successScope && result.successScope[scope]) {
-        setPermissionStatus(prev => ({ ...prev, [scope]: "authorized" }));
+        setPermissionStatus(prev => ({ ...prev, [scope]: true }));
         setSuccess(`${scope} permission granted successfully`);
       } else {
         setError(result.msg || `Permission denied for ${scope}`);
@@ -127,11 +123,11 @@ export const DevicePermissionsPage: React.FC = () => {
               <div key={key} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <span className="font-medium text-gray-700 capitalize">{key}</span>
                 <span className={`px-3 py-1 rounded-full text-sm ${
-                  value === "authorized" || value === "accept"
+                  value === true
                     ? "bg-green-100 text-green-800" 
                     : "bg-red-100 text-red-800"
                 }`}>
-                  {value}
+                  {value === true ? "Authorized" : "Denied"}
                 </span>
               </div>
             ))}
@@ -208,7 +204,7 @@ export const DevicePermissionsPage: React.FC = () => {
         </h2>
         <ul className="space-y-2 text-sm text-blue-800">
           <li>
-            • <code className="bg-blue-100 px-2 py-0.5 rounded">wv.getSetting</code> - Get current permission status for all scopes
+            • <code className="bg-blue-100 px-2 py-0.5 rounded">wv.getSetting</code> - Returns boolean values for each permission scope
           </li>
           <li>
             • <code className="bg-blue-100 px-2 py-0.5 rounded">wv.authorize</code> - Request specific device permissions
@@ -220,7 +216,7 @@ export const DevicePermissionsPage: React.FC = () => {
             • Users can grant or deny permissions through native dialogs
           </li>
           <li>
-            • Permission states: <code>authorized/accept</code> (granted), <code>denied</code> (rejected), <code>not determined</code> (not asked)
+            • Permission states: <code>true</code> (granted), <code>false</code> (denied/not determined)
           </li>
         </ul>
       </div>
