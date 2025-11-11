@@ -1,4 +1,4 @@
-import { IconType } from 'react-icons';
+import { IconType } from "react-icons";
 
 export interface FeatureItem {
   id: string;
@@ -6,7 +6,7 @@ export interface FeatureItem {
   description: string;
   icon: IconType;
   path: string;
-  status?: 'stable' | 'beta' | 'experimental';
+  status?: "stable" | "beta" | "experimental";
   tags?: string[];
 }
 

@@ -66,18 +66,22 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMenuOpen }) => {
                 className="flex items-center gap-1 hover:text-blue-100 transition-colors text-blue-100"
               >
                 API Demos
-                <FiChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                <FiChevronDown
+                  className={`w-4 h-4 transition-transform ${
+                    isDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
               </button>
 
               {/* Dropdown Menu */}
               {isDropdownOpen && (
                 <>
                   {/* Backdrop */}
-                  <div 
-                    className="fixed inset-0 z-10" 
+                  <div
+                    className="fixed inset-0 z-10"
                     onClick={() => setIsDropdownOpen(false)}
                   />
-                  
+
                   {/* Menu */}
                   <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl py-2 z-20 max-h-96 overflow-y-auto">
                     {apiCategories.map((category) => (
@@ -130,11 +134,11 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMenuOpen }) => {
               >
                 Home
               </NavLink>
-              
+
               <div className="px-4 py-2 text-xs font-semibold text-blue-200 uppercase">
                 API Demos
               </div>
-              
+
               {apiCategories.map((category) => (
                 <NavLink
                   key={category.path}

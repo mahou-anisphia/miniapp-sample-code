@@ -326,14 +326,19 @@ export const SSOPage: React.FC = () => {
           <ul className="space-y-1 text-xs text-blue-800">
             <li>• Scopes define what user information your app can access</li>
             <li>
-              • <code className="bg-blue-100 px-1 py-0.5 rounded">auth_user</code>{" "}
+              •{" "}
+              <code className="bg-blue-100 px-1 py-0.5 rounded">auth_user</code>{" "}
               provides full user profile access
             </li>
             <li>
-              • <code className="bg-blue-100 px-1 py-0.5 rounded">auth_base</code>{" "}
+              •{" "}
+              <code className="bg-blue-100 px-1 py-0.5 rounded">auth_base</code>{" "}
               only provides user_id without auth dialog
             </li>
-            <li>• Individual scopes (USER_NAME, USER_AVATAR, etc.) request specific fields</li>
+            <li>
+              • Individual scopes (USER_NAME, USER_AVATAR, etc.) request
+              specific fields
+            </li>
             <li>• Multiple scopes can be combined in a single request</li>
           </ul>
         </div>

@@ -127,11 +127,7 @@ export const HomePage: React.FC = () => {
       title: "Geographical Location",
       description: "GPS and location services",
       color: "red",
-      features: [
-        "Get current location",
-        "Search locations",
-        "GPS coordinates",
-      ],
+      features: ["Get current location", "Search locations", "GPS coordinates"],
       demoPath: "/location/get",
     },
     {
@@ -139,11 +135,7 @@ export const HomePage: React.FC = () => {
       title: "Cookie",
       description: "Cookie read and write operations",
       color: "teal",
-      features: [
-        "Read cookies",
-        "Write cookies",
-        "Cookie management",
-      ],
+      features: ["Read cookies", "Write cookies", "Cookie management"],
       demoPath: "/cookie/operations",
     },
     {
@@ -205,10 +197,7 @@ export const HomePage: React.FC = () => {
       title: "Sound",
       description: "Sound notifications and alerts",
       color: "orange",
-      features: [
-        "Play beep sound",
-        "System notifications",
-      ],
+      features: ["Play beep sound", "System notifications"],
       demoPath: "/sound/beep",
     },
     {
@@ -216,10 +205,7 @@ export const HomePage: React.FC = () => {
       title: "Call",
       description: "Phone call functionality",
       color: "pink",
-      features: [
-        "Dial phone number",
-        "Make phone calls",
-      ],
+      features: ["Dial phone number", "Make phone calls"],
       demoPath: "/call/dial",
     },
     {
@@ -227,11 +213,7 @@ export const HomePage: React.FC = () => {
       title: "App Information",
       description: "Application state and settings",
       color: "indigo",
-      features: [
-        "Get app state",
-        "Notification settings",
-        "Open app settings",
-      ],
+      features: ["Get app state", "Notification settings", "Open app settings"],
       demoPath: "/app/state",
     },
     {
@@ -253,11 +235,7 @@ export const HomePage: React.FC = () => {
       title: "Scan",
       description: "QR code and barcode scanning",
       color: "cyan",
-      features: [
-        "Scan QR codes",
-        "Scan barcodes",
-        "Camera integration",
-      ],
+      features: ["Scan QR codes", "Scan barcodes", "Camera integration"],
       demoPath: "/scan/qr",
     },
     {
@@ -321,7 +299,8 @@ export const HomePage: React.FC = () => {
               WindVane API Showcase
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Comprehensive demos of WindVane APIs for Viettel MiniApp Platform development
+              Comprehensive demos of WindVane APIs for Viettel MiniApp Platform
+              development
             </p>
 
             {/* Search Bar */}
