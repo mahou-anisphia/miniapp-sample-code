@@ -7,6 +7,8 @@ import { HomePage } from "./pages/HomePage";
 import { SSOPage } from "./pages/authentication/Page";
 import { DevicePermissionsPage } from "./pages/permissions/Page";
 import { InteractionPage } from "./pages/interaction/Page";
+import { BaseAPIsPage } from "./pages/base/Page";
+import { MultimediaPage } from "./pages/multimedia/Page";
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -32,18 +34,17 @@ function App() {
             {/* Interaction */}
             <Route path="/interaction/*" element={<InteractionPage />} />
 
+            {/* Multimedia */}
+            <Route path="/multimedia/*" element={<MultimediaPage />} />
+
+            {/* Base API */}
+            <Route path="/base/*" element={<BaseAPIsPage />} />
+
             {/* Placeholder routes for other categories */}
-            <Route
-              path="/base/*"
-              element={<ComingSoonPage category="Base APIs" />}
-            />
+
             <Route
               path="/navigation/*"
               element={<ComingSoonPage category="Navigation" />}
-            />
-            <Route
-              path="/multimedia/*"
-              element={<ComingSoonPage category="Multimedia" />}
             />
             <Route
               path="/file/*"
