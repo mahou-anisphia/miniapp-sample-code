@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { getAuthCode } from "./sso/getAuthCode";
+import { getAuthCode, clearStorage } from "./sso/getAuthCode";
 import {
   FiUser,
   FiKey,
@@ -8,6 +8,7 @@ import {
   FiAlertCircle,
   FiPlus,
   FiX,
+  FiTrash2,
 } from "react-icons/fi";
 
 const AVAILABLE_SCOPES = [
@@ -78,7 +79,9 @@ export const SSOPage: React.FC = () => {
   const [selectedScopes, setSelectedScopes] = useState(["auth_user"]);
   const [authCode, setAuthCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [clearingStorage, setClearingStorage] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [showScopeDropdown, setShowScopeDropdown] = useState(false);
 
   const handleAddScope = (scope: string) => {
@@ -106,6 +109,7 @@ export const SSOPage: React.FC = () => {
     setLoading(true);
     setError("");
     setAuthCode("");
+    setSuccessMessage("");
 
     try {
       const code = await getAuthCode(appId, selectedScopes);
@@ -114,6 +118,22 @@ export const SSOPage: React.FC = () => {
       setError(err instanceof Error ? err.message : "Failed to get auth code");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleClearStorage = async () => {
+    setClearingStorage(true);
+    setError("");
+    setSuccessMessage("");
+
+    try {
+      await clearStorage();
+      setSuccessMessage("Storage cleared successfully");
+      setTimeout(() => setSuccessMessage(""), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to clear storage");
+    } finally {
+      setClearingStorage(false);
     }
   };
 
@@ -248,43 +268,84 @@ export const SSOPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Get Auth Code Button */}
-        <button
-          onClick={handleGetAuthCode}
-          disabled={loading}
-          className={`w-full py-3 px-6 rounded-lg font-medium text-white transition-colors ${
-            loading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
-          }`}
-        >
-          {loading ? (
-            <span className="flex items-center justify-center">
-              <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  fill="none"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-              Getting Auth Code...
-            </span>
-          ) : (
-            <span className="flex items-center justify-center">
-              <FiKey className="mr-2" />
-              Get Auth Code
-            </span>
-          )}
-        </button>
+        {/* Action Buttons */}
+        <div className="flex gap-3">
+          {/* Get Auth Code Button */}
+          <button
+            onClick={handleGetAuthCode}
+            disabled={loading}
+            className={`flex-1 py-3 px-6 rounded-lg font-medium text-white transition-colors ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
+          >
+            {loading ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                Getting Auth Code...
+              </span>
+            ) : (
+              <span className="flex items-center justify-center">
+                <FiKey className="mr-2" />
+                Get Auth Code
+              </span>
+            )}
+          </button>
+
+          {/* Clear Storage Button */}
+          <button
+            onClick={handleClearStorage}
+            disabled={clearingStorage}
+            className={`py-3 px-6 rounded-lg font-medium text-white transition-colors ${
+              clearingStorage
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-red-600 hover:bg-red-700"
+            }`}
+          >
+            {clearingStorage ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                Clearing...
+              </span>
+            ) : (
+              <span className="flex items-center justify-center">
+                <FiTrash2 className="mr-2" />
+                Clear Storage
+              </span>
+            )}
+          </button>
+        </div>
 
         {/* Error Message */}
         {error && (
@@ -293,6 +354,17 @@ export const SSOPage: React.FC = () => {
             <div>
               <p className="text-sm font-medium text-red-800">Error</p>
               <p className="text-sm text-red-600 mt-1">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Success Message */}
+        {successMessage && (
+          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start">
+            <FiCheckCircle className="text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-green-800">Success!</p>
+              <p className="text-sm text-green-600 mt-1">{successMessage}</p>
             </div>
           </div>
         )}
@@ -363,6 +435,13 @@ export const SSOPage: React.FC = () => {
           <li>• Auth code can be exchanged for user tokens on your backend</li>
           <li>• Auth codes are short-lived and should be used immediately</li>
           <li>• This is part of the User Data Permission category</li>
+          <li>
+            • Use{" "}
+            <code className="bg-purple-100 px-2 py-0.5 rounded">
+              clearStorage
+            </code>{" "}
+            to clear all stored data from WVStorage - Useful in Debugging
+          </li>
         </ul>
       </div>
     </div>
