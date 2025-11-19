@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { FiVideo, FiCheckCircle, FiAlertCircle, FiLock } from "react-icons/fi";
-import { chooseVideo, saveVideoToPhotosAlbum } from "./video/videoApi";
-import { authorize } from "../permissions/device/authorize";
+import { FiVideo, FiLock } from "react-icons/fi";
+import { chooseVideo } from "../../api/multimedia/chooseVideo";
+import { saveVideoToPhotosAlbum } from "../../api/multimedia/saveVideoToPhotosAlbum";
+import { authorize } from "../../api/permissions/authorize";
+import { useApiCall } from "../../hooks/useApiCall";
+import { StatusMessage } from "../../components/common/StatusMessage";
 
 export const VideoComponent: React.FC = () => {
   const [videoUrl, setVideoUrl] = useState("");
   const [videoInfo, setVideoInfo] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const { run, feedback, showFeedback, loading } = useApiCall();
 
   useEffect(() => {
     const handleVideoSuccess = (e: any) => {
@@ -18,16 +20,19 @@ export const VideoComponent: React.FC = () => {
 
     const handleVideoFailed = (e: any) => {
       if (e.param) {
-        setError(`Video error: ${e.param.msg || JSON.stringify(e.param)}`);
+        showFeedback(
+          "error",
+          `Video error: ${e.param.msg || JSON.stringify(e.param)}`
+        );
       }
     };
 
     const handleVideoSaved = () => {
-      setSuccess("Video saved to album successfully");
+      showFeedback("success", "Video saved to album successfully");
     };
 
     const handleVideoSaveFailed = (e: any) => {
-      setError(`Video save failed: ${e.param?.msg || "Unknown error"}`);
+      showFeedback("error", `Video save failed: ${e.param?.msg || "Unknown error"}`);
     };
 
     document.addEventListener(
@@ -65,10 +70,11 @@ export const VideoComponent: React.FC = () => {
         handleVideoSaveFailed
       );
     };
-  }, []);
+  }, [showFeedback]);
 
   const handlePermissionError = async (scope: "camera" | "album" | "file") => {
-    setError(
+    showFeedback(
+      "error",
       `Permission denied. Please grant ${scope} permission in device settings.`
     );
     try {
@@ -79,15 +85,21 @@ export const VideoComponent: React.FC = () => {
   };
 
   const handleChooseVideo = async (mode: "camera" | "video" | "both") => {
-    setError("");
-    setSuccess("");
     setVideoInfo("");
     try {
-      const result = await chooseVideo({ mode });
+      const result = await run(
+        () => chooseVideo({ mode }),
+        {
+          successMessage: "Video selected successfully",
+          errorMessage: () => "",
+        }
+      );
+      if (!result) {
+        return;
+      }
       setVideoInfo(
         `Path: ${result.path}\nSize: ${result.fileSize}\nDuration: ${result.duration}s\nDimensions: ${result.width}x${result.height}`
       );
-      setSuccess("Video selected successfully");
     } catch (err) {
       const errorMsg =
         err instanceof Error ? err.message : "Failed to choose video";
@@ -98,21 +110,24 @@ export const VideoComponent: React.FC = () => {
         const scope = mode === "video" ? "album" : "camera";
         await handlePermissionError(scope);
       } else {
-        setError(errorMsg);
+        showFeedback("error", errorMsg);
       }
     }
   };
 
   const handleSaveVideo = async () => {
-    setError("");
-    setSuccess("");
     if (!videoUrl.trim()) {
-      setError("Please enter a video URL");
+      showFeedback("error", "Please enter a video URL");
       return;
     }
     try {
-      await saveVideoToPhotosAlbum(videoUrl);
-      setSuccess("Video save initiated");
+      await run(
+        () => saveVideoToPhotosAlbum(videoUrl),
+        {
+          successMessage: "Video save initiated",
+          errorMessage: () => "",
+        }
+      );
     } catch (err) {
       const errorMsg =
         err instanceof Error ? err.message : "Failed to save video";
@@ -122,7 +137,7 @@ export const VideoComponent: React.FC = () => {
       ) {
         await handlePermissionError("file");
       } else {
-        setError(errorMsg);
+        showFeedback("error", errorMsg);
       }
     }
   };
@@ -146,19 +161,28 @@ export const VideoComponent: React.FC = () => {
       <div className="space-y-3 mb-4">
         <button
           onClick={() => handleChooseVideo("camera")}
-          className="w-full py-3 px-6 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
+          disabled={loading}
+          className={`w-full py-3 px-6 text-white font-medium rounded-lg transition-colors ${
+            loading ? "bg-gray-400 cursor-not-allowed" : "bg-purple-600 hover:bg-purple-700"
+          }`}
         >
           Record Video
         </button>
         <button
           onClick={() => handleChooseVideo("video")}
-          className="w-full py-3 px-6 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
+          disabled={loading}
+          className={`w-full py-3 px-6 text-white font-medium rounded-lg transition-colors ${
+            loading ? "bg-gray-400 cursor-not-allowed" : "bg-purple-600 hover:bg-purple-700"
+          }`}
         >
           Choose from Album
         </button>
         <button
           onClick={() => handleChooseVideo("both")}
-          className="w-full py-3 px-6 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
+          disabled={loading}
+          className={`w-full py-3 px-6 text-white font-medium rounded-lg transition-colors ${
+            loading ? "bg-gray-400 cursor-not-allowed" : "bg-purple-600 hover:bg-purple-700"
+          }`}
         >
           Record or Choose (Both)
         </button>
@@ -188,23 +212,18 @@ export const VideoComponent: React.FC = () => {
         />
         <button
           onClick={handleSaveVideo}
-          className="w-full py-3 px-6 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
+          disabled={loading}
+          className={`w-full py-3 px-6 text-white font-medium rounded-lg transition-colors ${
+            loading ? "bg-gray-400 cursor-not-allowed" : "bg-purple-600 hover:bg-purple-700"
+          }`}
         >
           Save Video to Album
         </button>
       </div>
 
-      {/* Success/Error */}
-      {success && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-start">
-          <FiCheckCircle className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-sm text-green-800">{success}</p>
-        </div>
-      )}
-      {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start">
-          <FiAlertCircle className="text-red-500 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-sm text-red-800">{error}</p>
+      {feedback && (
+        <div className="mt-4">
+          <StatusMessage type={feedback.type} message={feedback.message} />
         </div>
       )}
     </div>

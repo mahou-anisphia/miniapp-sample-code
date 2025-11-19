@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
-import {
-  FiDownload,
-  FiUpload,
-  FiCheckCircle,
-  FiAlertCircle,
-  FiLock,
-} from "react-icons/fi";
-import { downloadFile, uploadFile } from "./file/fileApi";
-import { authorize } from "../permissions/device/authorize";
+import { FiDownload, FiUpload, FiLock } from "react-icons/fi";
+import { downloadFile } from "../../api/file/downloadFile";
+import { uploadFile } from "../../api/file/uploadFile";
+import { authorize } from "../../api/permissions/authorize";
+import { useApiCall } from "../../hooks/useApiCall";
+import { StatusMessage } from "../../components/common/StatusMessage";
 
 export const FileTransferComponent: React.FC = () => {
   const [downloadUrl, setDownloadUrl] = useState(
@@ -21,32 +18,31 @@ export const FileTransferComponent: React.FC = () => {
   const [uploadTimeout, setUploadTimeout] = useState(8000);
   const [uploadResult, setUploadResult] = useState("");
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const { run, feedback, showFeedback, loading } = useApiCall();
 
   useEffect(() => {
     // Listen for download events
     const handleDownloadSuccess = (e: any) => {
       if (e.param) {
         setDownloadedPath(e.param.filePath);
-        setSuccess("Download completed successfully");
+        showFeedback("success", "Download completed successfully");
       }
     };
 
     const handleDownloadFailed = (e: any) => {
-      setError(`Download failed: ${e.param?.msg || "Unknown error"}`);
+      showFeedback("error", `Download failed: ${e.param?.msg || "Unknown error"}`);
     };
 
     // Listen for upload events
     const handleUploadSuccess = (e: any) => {
       if (e.param) {
         setUploadResult(`Upload completed: ${JSON.stringify(e.param)}`);
-        setSuccess("Upload completed successfully");
+        showFeedback("success", "Upload completed successfully");
       }
     };
 
     const handleUploadFailed = (e: any) => {
-      setError(`Upload failed: ${e.param?.msg || "Unknown error"}`);
+      showFeedback("error", `Upload failed: ${e.param?.msg || "Unknown error"}`);
     };
 
     document.addEventListener(
@@ -84,10 +80,11 @@ export const FileTransferComponent: React.FC = () => {
         handleUploadFailed
       );
     };
-  }, []);
+  }, [showFeedback]);
 
   const handlePermissionError = async () => {
-    setError(
+    showFeedback(
+      "error",
       "Permission denied. Please grant file permission in device settings."
     );
     try {
@@ -98,16 +95,22 @@ export const FileTransferComponent: React.FC = () => {
   };
 
   const handleDownload = async () => {
-    setError("");
-    setSuccess("");
     setDownloadedPath("");
     try {
-      const result = await downloadFile({
-        url: downloadUrl,
-        name: downloadName,
-      });
-      setDownloadedPath(result.filePath);
-      setSuccess("Download initiated successfully");
+      const result = await run(
+        () =>
+          downloadFile({
+            url: downloadUrl,
+            name: downloadName,
+          }),
+        {
+          successMessage: "Download initiated successfully",
+          errorMessage: () => "",
+        }
+      );
+      if (result) {
+        setDownloadedPath(result.filePath);
+      }
     } catch (err) {
       const errorMsg =
         err instanceof Error ? err.message : "Failed to download file";
@@ -117,28 +120,34 @@ export const FileTransferComponent: React.FC = () => {
       ) {
         await handlePermissionError();
       } else {
-        setError(errorMsg);
+        showFeedback("error", errorMsg);
       }
     }
   };
 
   const handleUpload = async () => {
-    setError("");
-    setSuccess("");
     setUploadResult("");
     if (!uploadFilePath.trim()) {
-      setError("Please enter a file path");
+      showFeedback("error", "Please enter a file path");
       return;
     }
     try {
-      const result = await uploadFile({
-        url: uploadUrl,
-        filePath: uploadFilePath,
-        timeout: uploadTimeout,
-        headers: { "Content-Type": "application/octet-stream" },
-      });
-      setUploadResult(JSON.stringify(result));
-      setSuccess("Upload initiated successfully");
+      const result = await run(
+        () =>
+          uploadFile({
+            url: uploadUrl,
+            filePath: uploadFilePath,
+            timeout: uploadTimeout,
+            headers: { "Content-Type": "application/octet-stream" },
+          }),
+        {
+          successMessage: "Upload initiated successfully",
+          errorMessage: () => "",
+        }
+      );
+      if (result) {
+        setUploadResult(JSON.stringify(result));
+      }
     } catch (err) {
       const errorMsg =
         err instanceof Error ? err.message : "Failed to upload file";
@@ -148,7 +157,7 @@ export const FileTransferComponent: React.FC = () => {
       ) {
         await handlePermissionError();
       } else {
-        setError(errorMsg);
+        showFeedback("error", errorMsg);
       }
     }
   };
@@ -191,7 +200,12 @@ export const FileTransferComponent: React.FC = () => {
         />
         <button
           onClick={handleDownload}
-          className="w-full py-3 px-6 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
+          disabled={loading}
+          className={`w-full py-3 px-6 text-white font-medium rounded-lg transition-colors ${
+            loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-green-600 hover:bg-green-700"
+          }`}
         >
           Download File
         </button>
@@ -236,7 +250,12 @@ export const FileTransferComponent: React.FC = () => {
         />
         <button
           onClick={handleUpload}
-          className="w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+          disabled={loading}
+          className={`w-full py-3 px-6 text-white font-medium rounded-lg transition-colors ${
+            loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
           Upload File
         </button>
@@ -252,17 +271,12 @@ export const FileTransferComponent: React.FC = () => {
         )}
       </div>
 
-      {/* Success/Error */}
-      {success && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-start">
-          <FiCheckCircle className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-sm text-green-800">{success}</p>
-        </div>
-      )}
-      {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start">
-          <FiAlertCircle className="text-red-500 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-sm text-red-800">{error}</p>
+      {feedback && (
+        <div className="mt-4">
+          <StatusMessage
+            type={feedback.type}
+            message={feedback.message}
+          />
         </div>
       )}
     </div>

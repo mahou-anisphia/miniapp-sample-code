@@ -1,50 +1,37 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { FiLock, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
-import { authorize, PermissionScope } from "../permissions/device/authorize";
+import { FiLock } from "react-icons/fi";
+import { authorize, PermissionScope } from "../../api/permissions/authorize";
+import { useApiCall } from "../../hooks/useApiCall";
+import { StatusMessage } from "../../components/common/StatusMessage";
+import { BackLink } from "../../components/common/BackLink";
 import { FileReadWriteComponent } from "./FileReadWriteComponent";
 import { FileInfoComponent } from "./FileInfoComponent";
 import { FileTransferComponent } from "./FileTransferComponent";
 import { FileChooseComponent } from "./FileChooseComponent";
 
 export const FilePage: React.FC = () => {
-  const [permissionError, setPermissionError] = useState("");
-  const [permissionSuccess, setPermissionSuccess] = useState("");
-  const [requestingPermission, setRequestingPermission] = useState(false);
+  const [requestingScope, setRequestingScope] = useState<PermissionScope | null>(
+    null
+  );
+  const { run, feedback } = useApiCall();
 
   const handleRequestPermission = async (scope: PermissionScope) => {
-    setPermissionError("");
-    setPermissionSuccess("");
-    setRequestingPermission(true);
-
+    setRequestingScope(scope);
     try {
-      const result = await authorize(scope);
-      if (result.successScope && result.successScope[scope]) {
-        setPermissionSuccess(`${scope} permission granted successfully`);
-      } else {
-        setPermissionError(result.msg || `Permission denied for ${scope}`);
-      }
-    } catch (err) {
-      setPermissionError(
-        err instanceof Error
-          ? err.message
-          : `Failed to request ${scope} permission`
+      await run(
+        () => authorize(scope),
+        {
+          successMessage: `${scope} permission granted successfully`,
+        }
       );
     } finally {
-      setRequestingPermission(false);
+      setRequestingScope(null);
     }
   };
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="mb-6">
-        <Link
-          to="/"
-          className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-        >
-          ← Back to home
-        </Link>
-      </div>
+      <BackLink />
 
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -68,9 +55,9 @@ export const FilePage: React.FC = () => {
 
         <button
           onClick={() => handleRequestPermission("file")}
-          disabled={requestingPermission}
+          disabled={Boolean(requestingScope)}
           className={`w-full py-3 px-6 rounded-lg font-medium text-white transition-colors ${
-            requestingPermission
+            requestingScope
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-yellow-600 hover:bg-yellow-700"
           }`}
@@ -86,17 +73,9 @@ export const FilePage: React.FC = () => {
           </p>
         </div>
 
-        {/* Permission Success/Error */}
-        {permissionSuccess && (
-          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-start">
-            <FiCheckCircle className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-            <p className="text-sm text-green-800">{permissionSuccess}</p>
-          </div>
-        )}
-        {permissionError && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start">
-            <FiAlertCircle className="text-red-500 mt-0.5 mr-2 flex-shrink-0" />
-            <p className="text-sm text-red-800">{permissionError}</p>
+        {feedback && (
+          <div className="mt-4">
+            <StatusMessage type={feedback.type} message={feedback.message} />
           </div>
         )}
       </div>

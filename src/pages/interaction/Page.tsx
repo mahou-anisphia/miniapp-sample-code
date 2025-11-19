@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import {
   FiLoader,
   FiAlertCircle,
@@ -9,12 +8,17 @@ import {
   FiNavigation,
   FiCommand,
 } from "react-icons/fi";
-import { showLoadingBox, hideLoadingBox } from "./loading/loadingApi";
-import { hideKeyboard } from "./keyboard/keyboardApi";
-import { toast } from "./toast/toastApi";
-import { alert, confirm, prompt } from "./dialog/dialogApi";
-import { showActionSheet } from "./actionsheet/actionSheetApi";
-import { updateNavBar, getNavBarHeight } from "./navbar/navBarApi";
+import { showLoadingBox } from "../../api/interaction/showLoadingBox";
+import { hideLoadingBox } from "../../api/interaction/hideLoadingBox";
+import { hideKeyboard } from "../../api/interaction/hideKeyboard";
+import { toast } from "../../api/interaction/toast";
+import { alert } from "../../api/interaction/alert";
+import { confirm } from "../../api/interaction/confirm";
+import { prompt } from "../../api/interaction/prompt";
+import { showActionSheet } from "../../api/interaction/showActionSheet";
+import { updateNavBar } from "../../api/interaction/updateNavBar";
+import { getNavBarHeight } from "../../api/interaction/getNavBarHeight";
+import { BackLink } from "../../components/common/BackLink";
 
 export const InteractionPage: React.FC = () => {
   const [error, setError] = useState("");
@@ -196,14 +200,7 @@ export const InteractionPage: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="mb-6">
-        <Link
-          to="/"
-          className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-        >
-          ← Back to home
-        </Link>
-      </div>
+      <BackLink />
 
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">

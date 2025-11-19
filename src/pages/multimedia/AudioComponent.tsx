@@ -1,21 +1,24 @@
 import React, { useState } from "react";
-import { FiVolume2, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
-import { playSystemSound } from "./audio/audioApi";
+import { FiVolume2 } from "react-icons/fi";
+import { playSystemSound } from "../../api/multimedia/playSystemSound";
+import { useApiCall } from "../../hooks/useApiCall";
+import { StatusMessage } from "../../components/common/StatusMessage";
 
 export const AudioComponent: React.FC = () => {
   const [soundId, setSoundId] = useState(1000);
   const [soundCount, setSoundCount] = useState(1);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const { run, feedback, loading } = useApiCall();
 
   const handlePlaySound = async () => {
-    setError("");
-    setSuccess("");
     try {
-      await playSystemSound({ sound: soundId, count: soundCount });
-      setSuccess(`Playing system sound ${soundId} ${soundCount} time(s)`);
+      await run(
+        () => playSystemSound({ sound: soundId, count: soundCount }),
+        {
+          successMessage: `Playing system sound ${soundId} ${soundCount} time(s)`,
+        }
+      );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to play sound");
+      // feedback handled by hook
     }
   };
 
@@ -48,22 +51,17 @@ export const AudioComponent: React.FC = () => {
       />
       <button
         onClick={handlePlaySound}
-        className="w-full py-3 px-6 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
+        disabled={loading}
+        className={`w-full py-3 px-6 text-white font-medium rounded-lg transition-colors ${
+          loading ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
+        }`}
       >
         Play System Sound
       </button>
 
-      {/* Success/Error */}
-      {success && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-start">
-          <FiCheckCircle className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-sm text-green-800">{success}</p>
-        </div>
-      )}
-      {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start">
-          <FiAlertCircle className="text-red-500 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-sm text-red-800">{error}</p>
+      {feedback && (
+        <div className="mt-4">
+          <StatusMessage type={feedback.type} message={feedback.message} />
         </div>
       )}
     </div>

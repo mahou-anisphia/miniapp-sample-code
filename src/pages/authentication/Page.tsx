@@ -1,11 +1,13 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { getAuthCode, clearStorage } from "./sso/getAuthCode";
+import React, { useMemo, useState } from "react";
+import { getAuthCode } from "../../api/authentication/getAuthCode";
+import { clearStorage } from "../../api/multimedia/clearStorage";
+import { useApiCall } from "../../hooks/useApiCall";
+import { StatusMessage } from "../../components/common/StatusMessage";
+import { BackLink } from "../../components/common/BackLink";
 import {
   FiUser,
   FiKey,
   FiCheckCircle,
-  FiAlertCircle,
   FiPlus,
   FiX,
   FiTrash2,
@@ -78,11 +80,9 @@ export const SSOPage: React.FC = () => {
   const [appId, setAppId] = useState("");
   const [selectedScopes, setSelectedScopes] = useState(["auth_user"]);
   const [authCode, setAuthCode] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [clearingStorage, setClearingStorage] = useState(false);
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [showScopeDropdown, setShowScopeDropdown] = useState(false);
+  const authCall = useApiCall();
+  const storageCall = useApiCall();
 
   const handleAddScope = (scope: string) => {
     if (!selectedScopes.includes(scope)) {
@@ -97,60 +97,40 @@ export const SSOPage: React.FC = () => {
 
   const handleGetAuthCode = async () => {
     if (!appId.trim()) {
-      setError("Please enter App ID");
+      authCall.showFeedback("error", "Please enter App ID");
       return;
     }
 
     if (selectedScopes.length === 0) {
-      setError("Please select at least one scope");
+      authCall.showFeedback("error", "Please select at least one scope");
       return;
     }
 
-    setLoading(true);
-    setError("");
     setAuthCode("");
-    setSuccessMessage("");
 
-    try {
-      const code = await getAuthCode(appId, selectedScopes);
+    const code = await authCall.run(() => getAuthCode(appId, selectedScopes), {
+      successMessage: "Auth code retrieved successfully",
+    });
+    if (code) {
       setAuthCode(code);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to get auth code");
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleClearStorage = async () => {
-    setClearingStorage(true);
-    setError("");
-    setSuccessMessage("");
-
-    try {
-      await clearStorage();
-      setSuccessMessage("Storage cleared successfully");
-      setTimeout(() => setSuccessMessage(""), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to clear storage");
-    } finally {
-      setClearingStorage(false);
-    }
+    await storageCall.run(() => clearStorage(), {
+      successMessage: "Storage cleared successfully",
+    });
   };
 
-  const availableScopes = AVAILABLE_SCOPES.filter(
-    (scope) => !selectedScopes.includes(scope.value)
+  const availableScopes = useMemo(
+    () =>
+      AVAILABLE_SCOPES.filter((scope) => !selectedScopes.includes(scope.value)),
+    [selectedScopes]
   );
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="mb-6">
-        <Link
-          to="/"
-          className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-        >
-          ← Back to home
-        </Link>
-      </div>
+      <BackLink />
 
       {/* Title */}
       <div className="mb-8">
@@ -273,14 +253,14 @@ export const SSOPage: React.FC = () => {
           {/* Get Auth Code Button */}
           <button
             onClick={handleGetAuthCode}
-            disabled={loading}
+            disabled={authCall.loading}
             className={`flex-1 py-3 px-6 rounded-lg font-medium text-white transition-colors ${
-              loading
+              authCall.loading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
-            {loading ? (
+            {authCall.loading ? (
               <span className="flex items-center justify-center">
                 <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
                   <circle
@@ -311,14 +291,14 @@ export const SSOPage: React.FC = () => {
           {/* Clear Storage Button */}
           <button
             onClick={handleClearStorage}
-            disabled={clearingStorage}
+            disabled={storageCall.loading}
             className={`py-3 px-6 rounded-lg font-medium text-white transition-colors ${
-              clearingStorage
+              storageCall.loading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-red-600 hover:bg-red-700"
             }`}
           >
-            {clearingStorage ? (
+            {storageCall.loading ? (
               <span className="flex items-center justify-center">
                 <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
                   <circle
@@ -347,27 +327,20 @@ export const SSOPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
-            <FiAlertCircle className="text-red-500 mt-0.5 mr-3 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-red-800">Error</p>
-              <p className="text-sm text-red-600 mt-1">{error}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Success Message */}
-        {successMessage && (
-          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start">
-            <FiCheckCircle className="text-green-500 mt-0.5 mr-3 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-green-800">Success!</p>
-              <p className="text-sm text-green-600 mt-1">{successMessage}</p>
-            </div>
-          </div>
-        )}
+        <div className="space-y-3 mt-4">
+          {authCall.feedback && (
+            <StatusMessage
+              type={authCall.feedback.type}
+              message={authCall.feedback.message}
+            />
+          )}
+          {storageCall.feedback && (
+            <StatusMessage
+              type={storageCall.feedback.type}
+              message={storageCall.feedback.message}
+            />
+          )}
+        </div>
 
         {/* Success Message with Auth Code */}
         {authCode && (

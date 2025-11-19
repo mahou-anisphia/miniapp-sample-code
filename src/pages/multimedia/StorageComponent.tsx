@@ -1,71 +1,52 @@
 import React, { useState } from "react";
-import {
-  FiDatabase,
-  FiCheckCircle,
-  FiAlertCircle,
-  FiSave,
-  FiTrash2,
-} from "react-icons/fi";
-import {
-  setItem,
-  getItem,
-  removeItem,
-  clearStorage,
-} from "./storage/storageApi";
+import { FiDatabase, FiSave, FiTrash2 } from "react-icons/fi";
+import { setItem } from "../../api/multimedia/setItem";
+import { getItem } from "../../api/multimedia/getItem";
+import { removeItem } from "../../api/multimedia/removeItem";
+import { clearStorage } from "../../api/multimedia/clearStorage";
+import { useApiCall } from "../../hooks/useApiCall";
+import { StatusMessage } from "../../components/common/StatusMessage";
 
 export const StorageComponent: React.FC = () => {
   const [storageKey, setStorageKey] = useState("test_key");
   const [storageValue, setStorageValue] = useState("test_value");
   const [retrievedValue, setRetrievedValue] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const { run, feedback, loading } = useApiCall();
 
   const handleSetStorage = async () => {
-    setError("");
-    setSuccess("");
-    try {
-      await setItem(storageKey, storageValue);
-      setSuccess(`Stored: ${storageKey} = ${storageValue}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to set storage");
-    }
+    await run(
+      () => setItem(storageKey, storageValue),
+      {
+        successMessage: () => `Stored: ${storageKey} = ${storageValue}`,
+      }
+    );
   };
 
   const handleGetStorage = async () => {
-    setError("");
-    setSuccess("");
     setRetrievedValue("");
-    try {
-      const value = await getItem(storageKey);
+    const value = await run(
+      () => getItem(storageKey),
+      { successMessage: "Value retrieved successfully" }
+    );
+    if (value) {
       setRetrievedValue(value);
-      setSuccess("Value retrieved successfully");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to get storage");
     }
   };
 
   const handleRemoveStorage = async () => {
-    setError("");
-    setSuccess("");
-    try {
-      await removeItem(storageKey);
-      setSuccess(`Removed key: ${storageKey}`);
-      setRetrievedValue("");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to remove item");
-    }
+    await run(
+      () => removeItem(storageKey),
+      { successMessage: `Removed key: ${storageKey}` }
+    );
+    setRetrievedValue("");
   };
 
   const handleClearStorage = async () => {
-    setError("");
-    setSuccess("");
-    try {
-      await clearStorage();
-      setSuccess("Storage cleared successfully");
-      setRetrievedValue("");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to clear storage");
-    }
+    await run(
+      () => clearStorage(),
+      { successMessage: "Storage cleared successfully" }
+    );
+    setRetrievedValue("");
   };
 
   return (
@@ -98,27 +79,39 @@ export const StorageComponent: React.FC = () => {
       <div className="grid grid-cols-2 gap-3 mb-4">
         <button
           onClick={handleSetStorage}
-          className="py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center"
+          disabled={loading}
+          className={`py-3 px-6 text-white font-medium rounded-lg transition-colors flex items-center justify-center ${
+            loading ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
+          }`}
         >
           <FiSave className="mr-2" />
           Set Item
         </button>
         <button
           onClick={handleGetStorage}
-          className="py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
+          disabled={loading}
+          className={`py-3 px-6 text-white font-medium rounded-lg transition-colors ${
+            loading ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
+          }`}
         >
           Get Item
         </button>
         <button
           onClick={handleRemoveStorage}
-          className="py-3 px-6 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center"
+          disabled={loading}
+          className={`py-3 px-6 text-white font-medium rounded-lg transition-colors flex items-center justify-center ${
+            loading ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
+          }`}
         >
           <FiTrash2 className="mr-2" />
           Remove
         </button>
         <button
           onClick={handleClearStorage}
-          className="py-3 px-6 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+          disabled={loading}
+          className={`py-3 px-6 text-white font-medium rounded-lg transition-colors ${
+            loading ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
+          }`}
         >
           Clear All
         </button>
@@ -135,17 +128,9 @@ export const StorageComponent: React.FC = () => {
         </div>
       )}
 
-      {/* Success/Error */}
-      {success && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-start">
-          <FiCheckCircle className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-sm text-green-800">{success}</p>
-        </div>
-      )}
-      {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start">
-          <FiAlertCircle className="text-red-500 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-sm text-red-800">{error}</p>
+      {feedback && (
+        <div className="mt-4">
+          <StatusMessage type={feedback.type} message={feedback.message} />
         </div>
       )}
     </div>

@@ -1,7 +1,10 @@
 import React, { useState } from "react";
-import { FiFile, FiCheckCircle, FiAlertCircle, FiLock } from "react-icons/fi";
-import { writeFile, readFile } from "./file/fileApi";
-import { authorize } from "../permissions/device/authorize";
+import { FiFile, FiLock } from "react-icons/fi";
+import { writeFile } from "../../api/file/writeFile";
+import { readFile } from "../../api/file/readFile";
+import { authorize } from "../../api/permissions/authorize";
+import { useApiCall } from "../../hooks/useApiCall";
+import { StatusMessage } from "../../components/common/StatusMessage";
 
 export const FileReadWriteComponent: React.FC = () => {
   const [fileName, setFileName] = useState("testFile.txt");
@@ -10,11 +13,11 @@ export const FileReadWriteComponent: React.FC = () => {
     "overwrite"
   );
   const [readContent, setReadContent] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const apiCall = useApiCall();
 
   const handlePermissionError = async () => {
-    setError(
+    apiCall.showFeedback(
+      "error",
       "Permission denied. Please grant file permission in device settings."
     );
     try {
@@ -25,16 +28,19 @@ export const FileReadWriteComponent: React.FC = () => {
   };
 
   const handleWriteFile = async () => {
-    setError("");
-    setSuccess("");
     try {
-      await writeFile({
-        mode: writeMode,
-        data: fileContent,
-        fileName: fileName,
-        share: "false",
-      });
-      setSuccess(`File written successfully with mode: ${writeMode}`);
+      await apiCall.run(
+        () =>
+          writeFile({
+            mode: writeMode,
+            data: fileContent,
+            fileName: fileName,
+            share: "false",
+          }),
+        {
+          successMessage: `File written successfully with mode: ${writeMode}`,
+        }
+      );
     } catch (err) {
       const errorMsg =
         err instanceof Error ? err.message : "Failed to write file";
@@ -44,22 +50,27 @@ export const FileReadWriteComponent: React.FC = () => {
       ) {
         await handlePermissionError();
       } else {
-        setError(errorMsg);
+        apiCall.showFeedback("error", errorMsg);
       }
     }
   };
 
   const handleReadFile = async () => {
-    setError("");
-    setSuccess("");
     setReadContent("");
     try {
-      const result = await readFile({
-        fileName: fileName,
-        share: "false",
-      });
-      setReadContent(result.data);
-      setSuccess("File read successfully");
+      const result = await apiCall.run(
+        () =>
+          readFile({
+            fileName: fileName,
+            share: "false",
+          }),
+        {
+          successMessage: "File read successfully",
+        }
+      );
+      if (result) {
+        setReadContent(result.data);
+      }
     } catch (err) {
       const errorMsg =
         err instanceof Error ? err.message : "Failed to read file";
@@ -69,7 +80,7 @@ export const FileReadWriteComponent: React.FC = () => {
       ) {
         await handlePermissionError();
       } else {
-        setError(errorMsg);
+        apiCall.showFeedback("error", errorMsg);
       }
     }
   };
@@ -121,13 +132,23 @@ export const FileReadWriteComponent: React.FC = () => {
       <div className="grid grid-cols-2 gap-3 mb-4">
         <button
           onClick={handleWriteFile}
-          className="py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+          disabled={apiCall.loading}
+          className={`py-3 px-6 text-white font-medium rounded-lg transition-colors ${
+            apiCall.loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
           Write File
         </button>
         <button
           onClick={handleReadFile}
-          className="py-3 px-6 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
+          disabled={apiCall.loading}
+          className={`py-3 px-6 text-white font-medium rounded-lg transition-colors ${
+            apiCall.loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-green-600 hover:bg-green-700"
+          }`}
         >
           Read File
         </button>
@@ -144,17 +165,12 @@ export const FileReadWriteComponent: React.FC = () => {
         </div>
       )}
 
-      {/* Success/Error */}
-      {success && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-start">
-          <FiCheckCircle className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-sm text-green-800">{success}</p>
-        </div>
-      )}
-      {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start">
-          <FiAlertCircle className="text-red-500 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-sm text-red-800">{error}</p>
+      {apiCall.feedback && (
+        <div className="mt-4">
+          <StatusMessage
+            type={apiCall.feedback.type}
+            message={apiCall.feedback.message}
+          />
         </div>
       )}
     </div>

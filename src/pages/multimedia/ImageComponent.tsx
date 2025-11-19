@@ -1,15 +1,17 @@
 import React, { useState } from "react";
-import { FiImage, FiCheckCircle, FiAlertCircle, FiLock } from "react-icons/fi";
-import { saveImage } from "./image/imageApi";
-import { authorize } from "../permissions/device/authorize";
+import { FiImage, FiLock } from "react-icons/fi";
+import { saveImage } from "../../api/multimedia/saveImage";
+import { authorize } from "../../api/permissions/authorize";
+import { useApiCall } from "../../hooks/useApiCall";
+import { StatusMessage } from "../../components/common/StatusMessage";
 
 export const ImageComponent: React.FC = () => {
   const [imageUrl, setImageUrl] = useState("https://picsum.photos/400/300");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const { run, feedback, showFeedback, loading } = useApiCall();
 
   const handlePermissionError = async () => {
-    setError(
+    showFeedback(
+      "error",
       "Permission denied. Please grant file permission in device settings."
     );
     try {
@@ -20,11 +22,14 @@ export const ImageComponent: React.FC = () => {
   };
 
   const handleSaveImage = async () => {
-    setError("");
-    setSuccess("");
     try {
-      await saveImage(imageUrl);
-      setSuccess("Image saved to album successfully");
+      await run(
+        () => saveImage(imageUrl),
+        {
+          successMessage: "Image saved to album successfully",
+          errorMessage: () => "",
+        }
+      );
     } catch (err) {
       const errorMsg =
         err instanceof Error ? err.message : "Failed to save image";
@@ -34,7 +39,7 @@ export const ImageComponent: React.FC = () => {
       ) {
         await handlePermissionError();
       } else {
-        setError(errorMsg);
+        showFeedback("error", errorMsg);
       }
     }
   };
@@ -65,22 +70,17 @@ export const ImageComponent: React.FC = () => {
       />
       <button
         onClick={handleSaveImage}
-        className="w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+        disabled={loading}
+        className={`w-full py-3 px-6 text-white font-medium rounded-lg transition-colors ${
+          loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+        }`}
       >
         Save Image
       </button>
 
-      {/* Success/Error */}
-      {success && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-start">
-          <FiCheckCircle className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-sm text-green-800">{success}</p>
-        </div>
-      )}
-      {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start">
-          <FiAlertCircle className="text-red-500 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-sm text-red-800">{error}</p>
+      {feedback && (
+        <div className="mt-4">
+          <StatusMessage type={feedback.type} message={feedback.message} />
         </div>
       )}
     </div>

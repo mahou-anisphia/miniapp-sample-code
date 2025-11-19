@@ -1,18 +1,20 @@
 import React, { useState } from "react";
-import { FiInfo, FiCheckCircle, FiAlertCircle, FiLock } from "react-icons/fi";
-import { getFileInfo } from "./file/fileApi";
-import { authorize } from "../permissions/device/authorize";
+import { FiInfo, FiLock } from "react-icons/fi";
+import { getFileInfo } from "../../api/file/getFileInfo";
+import { authorize } from "../../api/permissions/authorize";
+import { useApiCall } from "../../hooks/useApiCall";
+import { StatusMessage } from "../../components/common/StatusMessage";
 
 export const FileInfoComponent: React.FC = () => {
   const [filePath, setFilePath] = useState(
     "/storage/emulated/0/Android/data/xxx/testFile.txt"
   );
   const [fileSize, setFileSize] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const apiCall = useApiCall();
 
   const handlePermissionError = async () => {
-    setError(
+    apiCall.showFeedback(
+      "error",
       "Permission denied. Please grant file permission in device settings."
     );
     try {
@@ -23,13 +25,15 @@ export const FileInfoComponent: React.FC = () => {
   };
 
   const handleGetFileInfo = async () => {
-    setError("");
-    setSuccess("");
     setFileSize("");
     try {
-      const result = await getFileInfo({ filePath });
-      setFileSize(result.fileSize);
-      setSuccess("File info retrieved successfully");
+      const result = await apiCall.run(
+        () => getFileInfo({ filePath }),
+        { successMessage: "File info retrieved successfully" }
+      );
+      if (result) {
+        setFileSize(result.fileSize);
+      }
     } catch (err) {
       const errorMsg =
         err instanceof Error ? err.message : "Failed to get file info";
@@ -39,7 +43,7 @@ export const FileInfoComponent: React.FC = () => {
       ) {
         await handlePermissionError();
       } else {
-        setError(errorMsg);
+        apiCall.showFeedback("error", errorMsg);
       }
     }
   };
@@ -82,17 +86,12 @@ export const FileInfoComponent: React.FC = () => {
         </div>
       )}
 
-      {/* Success/Error */}
-      {success && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-start">
-          <FiCheckCircle className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-sm text-green-800">{success}</p>
-        </div>
-      )}
-      {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start">
-          <FiAlertCircle className="text-red-500 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-sm text-red-800">{error}</p>
+      {apiCall.feedback && (
+        <div className="mt-4">
+          <StatusMessage
+            type={apiCall.feedback.type}
+            message={apiCall.feedback.message}
+          />
         </div>
       )}
     </div>

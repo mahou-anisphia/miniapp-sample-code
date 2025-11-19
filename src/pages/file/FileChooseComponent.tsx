@@ -1,22 +1,20 @@
 import React, { useState } from "react";
-import {
-  FiFileText,
-  FiCheckCircle,
-  FiAlertCircle,
-  FiLock,
-} from "react-icons/fi";
-import { chooseFiles, getDataByFilePath } from "./file/fileApi";
-import { authorize } from "../permissions/device/authorize";
+import { FiFileText, FiLock } from "react-icons/fi";
+import { chooseFiles } from "../../api/file/chooseFiles";
+import { getDataByFilePath } from "../../api/file/getDataByFilePath";
+import { authorize } from "../../api/permissions/authorize";
+import { useApiCall } from "../../hooks/useApiCall";
+import { StatusMessage } from "../../components/common/StatusMessage";
 
 export const FileChooseComponent: React.FC = () => {
   const [chosenFiles, setChosenFiles] = useState<Array<{ path: string }>>([]);
   const [filePathForData, setFilePathForData] = useState("");
   const [base64Data, setBase64Data] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const { run, feedback, showFeedback, loading } = useApiCall();
 
   const handlePermissionError = async () => {
-    setError(
+    showFeedback(
+      "error",
       "Permission denied. Please grant file permission in device settings."
     );
     try {
@@ -27,17 +25,21 @@ export const FileChooseComponent: React.FC = () => {
   };
 
   const handleChooseFiles = async () => {
-    setError("");
-    setSuccess("");
     setChosenFiles([]);
     try {
-      const result = await chooseFiles();
+      const result = await run(() => chooseFiles(), {
+        successMessage: "Files selected successfully",
+        errorMessage: () => "",
+      });
+      if (!result) {
+        return;
+      }
       setChosenFiles(result.files);
-      setSuccess(`${result.files.length} file(s) selected`);
       // Auto-populate the first file path for getData
       if (result.files.length > 0) {
         setFilePathForData(result.files[0].path);
       }
+      showFeedback("success", `${result.files.length} file(s) selected`);
     } catch (err) {
       const errorMsg =
         err instanceof Error ? err.message : "Failed to choose files";
@@ -47,23 +49,29 @@ export const FileChooseComponent: React.FC = () => {
       ) {
         await handlePermissionError();
       } else {
-        setError(errorMsg);
+        showFeedback("error", errorMsg);
       }
     }
   };
 
   const handleGetFileData = async () => {
-    setError("");
-    setSuccess("");
     setBase64Data("");
     if (!filePathForData.trim()) {
-      setError("Please enter a file path");
+      showFeedback("error", "Please enter a file path");
       return;
     }
     try {
-      const result = await getDataByFilePath({ path: filePathForData });
+      const result = await run(
+        () => getDataByFilePath({ path: filePathForData }),
+        {
+          successMessage: "File data retrieved successfully",
+          errorMessage: () => "",
+        }
+      );
+      if (!result) {
+        return;
+      }
       setBase64Data(result.base64Data);
-      setSuccess("File data retrieved successfully");
     } catch (err) {
       const errorMsg =
         err instanceof Error ? err.message : "Failed to get file data";
@@ -73,7 +81,7 @@ export const FileChooseComponent: React.FC = () => {
       ) {
         await handlePermissionError();
       } else {
-        setError(errorMsg);
+        showFeedback("error", errorMsg);
       }
     }
   };
@@ -99,7 +107,12 @@ export const FileChooseComponent: React.FC = () => {
         <h3 className="text-lg font-medium text-gray-800 mb-3">Choose Files</h3>
         <button
           onClick={handleChooseFiles}
-          className="w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
+          disabled={loading}
+          className={`w-full py-3 px-6 text-white font-medium rounded-lg transition-colors ${
+            loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-indigo-600 hover:bg-indigo-700"
+          }`}
         >
           Choose Files from Device
         </button>
@@ -133,7 +146,12 @@ export const FileChooseComponent: React.FC = () => {
         />
         <button
           onClick={handleGetFileData}
-          className="w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
+          disabled={loading}
+          className={`w-full py-3 px-6 text-white font-medium rounded-lg transition-colors ${
+            loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-indigo-600 hover:bg-indigo-700"
+          }`}
         >
           Get File Data
         </button>
@@ -152,17 +170,9 @@ export const FileChooseComponent: React.FC = () => {
         )}
       </div>
 
-      {/* Success/Error */}
-      {success && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-start">
-          <FiCheckCircle className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-sm text-green-800">{success}</p>
-        </div>
-      )}
-      {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start">
-          <FiAlertCircle className="text-red-500 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-sm text-red-800">{error}</p>
+      {feedback && (
+        <div className="mt-4">
+          <StatusMessage type={feedback.type} message={feedback.message} />
         </div>
       )}
     </div>

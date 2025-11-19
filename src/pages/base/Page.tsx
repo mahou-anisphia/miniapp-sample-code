@@ -1,48 +1,30 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { copyToClipboard } from "./clipboard/copyToClipboard";
-import { openBrowser } from "./browser/openBrowser";
-import { closeMiniApp } from "./close/closeMiniApp";
-import {
-  FiCopy,
-  FiSmartphone,
-  FiBell,
-  FiExternalLink,
-  FiMonitor,
-  FiCheckCircle,
-  FiXCircle,
-  FiAlertCircle,
-  FiZap,
-} from "react-icons/fi";
+import React, { useMemo, useRef, useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { FiCopy, FiExternalLink, FiXCircle } from "react-icons/fi";
+import { copyToClipboard } from "../../api/base/copyToClipboard";
+import { openBrowser } from "../../api/base/openBrowser";
+import { closeMiniApp } from "../../api/base/closeMiniApp";
+import { useApiCall } from "../../hooks/useApiCall";
+import { StatusMessage } from "../../components/common/StatusMessage";
+import { BackLink } from "../../components/common/BackLink";
 
 export const BaseAPIsPage: React.FC = () => {
   const location = useLocation();
   const [clipboardText, setClipboardText] = useState("Hello from MiniApp!");
   const [browserUrl, setBrowserUrl] = useState("https://www.viettel.com.vn");
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error" | "info">(
-    "info"
-  );
-
-  // Refs for scrolling
   const clipboardRef = useRef<HTMLDivElement>(null);
-  const installRef = useRef<HTMLDivElement>(null);
-  const notifyRef = useRef<HTMLDivElement>(null);
   const browserRef = useRef<HTMLDivElement>(null);
-  const backgroundRef = useRef<HTMLDivElement>(null);
-  const canUseRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLDivElement>(null);
+  const { run, loading, feedback } = useApiCall();
 
-  const sections = [
-    { id: "clipboard", label: "Clipboard", ref: clipboardRef, icon: FiCopy },
-    // { id: "install", label: "App Install", ref: installRef, icon: FiSmartphone },
-    // { id: "notify", label: "Notify", ref: notifyRef, icon: FiBell },
-    { id: "browser", label: "Browser", ref: browserRef, icon: FiExternalLink },
-    // { id: "background", label: "Background", ref: backgroundRef, icon: FiMonitor },
-    // { id: "can-use", label: "API Check", ref: canUseRef, icon: FiCheckCircle },
-    { id: "close", label: "Close App", ref: closeRef, icon: FiXCircle },
-  ];
+  const sections = useMemo(
+    () => [
+      { id: "clipboard", label: "Clipboard", ref: clipboardRef, icon: FiCopy },
+      { id: "browser", label: "Browser", ref: browserRef, icon: FiExternalLink },
+      { id: "close", label: "Close App", ref: closeRef, icon: FiXCircle },
+    ],
+    []
+  );
 
   // Handle hash navigation (remains the same)
   useEffect(() => {
@@ -56,67 +38,32 @@ export const BaseAPIsPage: React.FC = () => {
         });
       }, 100);
     }
-  }, [location.hash]);
-
-  const showMessage = (text: string, type: "success" | "error" | "info") => {
-    setMessage(text);
-    setMessageType(type);
-    setTimeout(() => setMessage(""), 5000);
-  };
+  }, [location.hash, sections]);
 
   const handleCopyToClipboard = async () => {
-    setLoading(true);
-    try {
-      await copyToClipboard(clipboardText);
-      showMessage("Text copied to clipboard successfully!", "success");
-    } catch (err) {
-      showMessage(
-        err instanceof Error ? err.message : "Failed to copy",
-        "error"
-      );
-    } finally {
-      setLoading(false);
-    }
+    await run(() => copyToClipboard(clipboardText), {
+      successMessage: "Text copied to clipboard successfully!",
+    });
   };
 
   const handleOpenBrowser = async () => {
-    setLoading(true);
-    try {
-      await openBrowser(browserUrl);
-      showMessage("Browser opened successfully (iOS only)", "success");
-    } catch (err) {
-      showMessage(
-        err instanceof Error ? err.message : "Failed to open browser",
-        "error"
-      );
-    } finally {
-      setLoading(false);
-    }
+    await run(() => openBrowser(browserUrl), {
+      successMessage: "Browser opened successfully",
+    });
   };
 
   const handleCloseMiniApp = async () => {
-    if (window.confirm("Are you sure you want to close this MiniApp?")) {
-      try {
-        await closeMiniApp();
-      } catch (err) {
-        showMessage(
-          err instanceof Error ? err.message : "Failed to close",
-          "error"
-        );
-      }
+    if (!window.confirm("Are you sure you want to close this MiniApp?")) {
+      return;
     }
+    await run(() => closeMiniApp(), {
+      successMessage: "Closing MiniApp...",
+    });
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="mb-6">
-        <Link
-          to="/"
-          className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-        >
-          ← Back to home
-        </Link>
-      </div>
+      <BackLink />
 
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Base APIs</h1>
@@ -142,34 +89,9 @@ export const BaseAPIsPage: React.FC = () => {
       </div>
 
       {/* Message Display */}
-      {message && (
-        <div
-          className={`mb-6 p-4 rounded-lg flex items-start ${
-            messageType === "success"
-              ? "bg-green-50 border border-green-200"
-              : messageType === "error"
-              ? "bg-red-50 border border-red-200"
-              : "bg-blue-50 border border-blue-200"
-          }`}
-        >
-          {messageType === "success" ? (
-            <FiCheckCircle className="text-green-500 mt-0.5 mr-3 flex-shrink-0" />
-          ) : messageType === "error" ? (
-            <FiXCircle className="text-red-500 mt-0.5 mr-3 flex-shrink-0" />
-          ) : (
-            <FiAlertCircle className="text-blue-500 mt-0.5 mr-3 flex-shrink-0" />
-          )}
-          <p
-            className={`text-sm ${
-              messageType === "success"
-                ? "text-green-800"
-                : messageType === "error"
-                ? "text-red-800"
-                : "text-blue-800"
-            }`}
-          >
-            {message}
-          </p>
+      {feedback && (
+        <div className="mb-6">
+          <StatusMessage type={feedback.type} message={feedback.message} />
         </div>
       )}
 
@@ -265,7 +187,7 @@ export const BaseAPIsPage: React.FC = () => {
             disabled={loading}
             className="w-full py-3 px-6 rounded-lg font-medium text-white bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 transition-colors"
           >
-            Open in Safari
+            Open in Browser
           </button>
           <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded">
             <strong>API:</strong> <code>WVBase.openBrowser</code>

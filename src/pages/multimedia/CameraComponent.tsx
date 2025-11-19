@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { FiCamera, FiCheckCircle, FiAlertCircle, FiLock } from "react-icons/fi";
-import { takePhoto } from "./camera/cameraApi";
-import { authorize } from "../permissions/device/authorize";
+import { FiCamera, FiLock } from "react-icons/fi";
+import { takePhoto } from "../../api/multimedia/takePhoto";
+import { authorize } from "../../api/permissions/authorize";
+import { useApiCall } from "../../hooks/useApiCall";
+import { StatusMessage } from "../../components/common/StatusMessage";
 
 export const CameraComponent: React.FC = () => {
   const [photoResult, setPhotoResult] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const { run, feedback, showFeedback, loading } = useApiCall();
 
   useEffect(() => {
     const handlePhotoUploadSuccess = (e: any) => {
-      setSuccess(`Photo uploaded: ${JSON.stringify(e.param)}`);
+      showFeedback("success", `Photo uploaded: ${JSON.stringify(e.param)}`);
     };
 
     const handlePhotoUploadFailed = (e: any) => {
-      setError(`Photo upload failed: ${JSON.stringify(e.param)}`);
+      showFeedback("error", `Photo upload failed: ${JSON.stringify(e.param)}`);
     };
 
     document.addEventListener(
@@ -36,10 +37,11 @@ export const CameraComponent: React.FC = () => {
         handlePhotoUploadFailed
       );
     };
-  }, []);
+  }, [showFeedback]);
 
   const handlePermissionError = async (scope: "camera" | "album") => {
-    setError(
+    showFeedback(
+      "error",
       `Permission denied. Please grant ${scope} permission in device settings.`
     );
     try {
@@ -50,15 +52,21 @@ export const CameraComponent: React.FC = () => {
   };
 
   const handleTakePhoto = async (mode: "camera" | "photo" | "both") => {
-    setError("");
-    setSuccess("");
     setPhotoResult("");
     try {
-      const result = await takePhoto({ mode });
+      const result = await run(
+        () => takePhoto({ mode }),
+        {
+          successMessage: "Photo taken successfully",
+          errorMessage: () => "",
+        }
+      );
+      if (!result) {
+        return;
+      }
       setPhotoResult(
         `Photo URL: ${result.url}\nLocal path: ${result.localPath}`
       );
-      setSuccess("Photo taken successfully");
     } catch (err) {
       const errorMsg =
         err instanceof Error ? err.message : "Failed to take photo";
@@ -69,7 +77,7 @@ export const CameraComponent: React.FC = () => {
         const scope = mode === "photo" ? "album" : "camera";
         await handlePermissionError(scope);
       } else {
-        setError(errorMsg);
+        showFeedback("error", errorMsg);
       }
     }
   };
@@ -93,19 +101,28 @@ export const CameraComponent: React.FC = () => {
       <div className="space-y-3 mb-4">
         <button
           onClick={() => handleTakePhoto("camera")}
-          className="w-full py-3 px-6 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
+          disabled={loading}
+          className={`w-full py-3 px-6 text-white font-medium rounded-lg transition-colors ${
+            loading ? "bg-gray-400 cursor-not-allowed" : "bg-orange-600 hover:bg-orange-700"
+          }`}
         >
           Take Photo
         </button>
         <button
           onClick={() => handleTakePhoto("photo")}
-          className="w-full py-3 px-6 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
+          disabled={loading}
+          className={`w-full py-3 px-6 text-white font-medium rounded-lg transition-colors ${
+            loading ? "bg-gray-400 cursor-not-allowed" : "bg-orange-600 hover:bg-orange-700"
+          }`}
         >
           Choose from Album
         </button>
         <button
           onClick={() => handleTakePhoto("both")}
-          className="w-full py-3 px-6 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors"
+          disabled={loading}
+          className={`w-full py-3 px-6 text-white font-medium rounded-lg transition-colors ${
+            loading ? "bg-gray-400 cursor-not-allowed" : "bg-orange-600 hover:bg-orange-700"
+          }`}
         >
           Take or Choose (Both)
         </button>
@@ -122,17 +139,9 @@ export const CameraComponent: React.FC = () => {
         </div>
       )}
 
-      {/* Success/Error */}
-      {success && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-start">
-          <FiCheckCircle className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-sm text-green-800">{success}</p>
-        </div>
-      )}
-      {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start">
-          <FiAlertCircle className="text-red-500 mt-0.5 mr-2 flex-shrink-0" />
-          <p className="text-sm text-red-800">{error}</p>
+      {feedback && (
+        <div className="mt-4">
+          <StatusMessage type={feedback.type} message={feedback.message} />
         </div>
       )}
     </div>

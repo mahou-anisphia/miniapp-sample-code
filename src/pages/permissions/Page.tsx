@@ -1,13 +1,11 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { getSetting, AuthSetting } from "./device/getSetting";
-import { authorize, PermissionScope } from "./device/authorize";
+import { getSetting, AuthSetting } from "../../api/permissions/getSetting";
+import { authorize, PermissionScope } from "../../api/permissions/authorize";
 import { 
   FiLock, 
   FiCamera, 
   FiMapPin, 
   FiMic, 
-  FiAlertCircle, 
   FiShield,
   FiBluetooth,
   FiImage,
@@ -17,49 +15,35 @@ import {
   FiActivity,
   FiMonitor
 } from "react-icons/fi";
+import { useApiCall } from "../../hooks/useApiCall";
+import { StatusMessage } from "../../components/common/StatusMessage";
+import { BackLink } from "../../components/common/BackLink";
 
 export const DevicePermissionsPage: React.FC = () => {
   const [permissionStatus, setPermissionStatus] = useState<AuthSetting>({});
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [selectedPermission, setSelectedPermission] = useState<PermissionScope>("camera");
+  const getSettingsCall = useApiCall();
+  const authorizeCall = useApiCall();
 
   const handleGetSetting = async () => {
-    setLoading(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      const result = await getSetting();
+    const result = await getSettingsCall.run(
+      () => getSetting(),
+      { successMessage: "Permission status retrieved successfully" }
+    );
+    if (result) {
       setPermissionStatus(result.authSetting || {});
-      setSuccess("Permission status retrieved successfully");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to get settings");
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleAuthorize = async (scope: PermissionScope) => {
-    setLoading(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      const result = await authorize(scope);
-      
-      // Check if authorization was successful
-      if (result.successScope && result.successScope[scope]) {
-        setPermissionStatus(prev => ({ ...prev, [scope]: true }));
-        setSuccess(`${scope} permission granted successfully`);
-      } else {
-        setError(result.msg || `Permission denied for ${scope}`);
+    const result = await authorizeCall.run(
+      () => authorize(scope),
+      {
+        successMessage: `${scope} permission granted successfully`,
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : `Failed to authorize ${scope}`);
-    } finally {
-      setLoading(false);
+    );
+    if (result?.successScope?.[scope]) {
+      setPermissionStatus((prev) => ({ ...prev, [scope]: true }));
     }
   };
 
@@ -78,14 +62,7 @@ export const DevicePermissionsPage: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="mb-6">
-        <Link
-          to="/"
-          className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-        >
-          ← Back to home
-        </Link>
-      </div>
+      <BackLink />
 
       {/* Title */}
       <div className="mb-8">
@@ -106,14 +83,14 @@ export const DevicePermissionsPage: React.FC = () => {
         
         <button
           onClick={handleGetSetting}
-          disabled={loading}
+          disabled={getSettingsCall.loading}
           className={`w-full py-3 px-6 rounded-lg font-medium text-white transition-colors ${
-            loading
+            getSettingsCall.loading
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-blue-600 hover:bg-blue-700"
           }`}
         >
-          {loading ? "Checking..." : "Get All Permissions Status"}
+          {getSettingsCall.loading ? "Checking..." : "Get All Permissions Status"}
         </button>
 
         {/* Permission Status Display */}
@@ -164,37 +141,34 @@ export const DevicePermissionsPage: React.FC = () => {
 
         <button
           onClick={() => handleAuthorize(selectedPermission)}
-          disabled={loading}
+          disabled={authorizeCall.loading}
           className={`w-full py-3 px-6 rounded-lg font-medium text-white transition-colors ${
-            loading
+            authorizeCall.loading
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-purple-600 hover:bg-purple-700"
           }`}
         >
-          {loading ? "Requesting..." : `Request ${permissions.find(p => p.id === selectedPermission)?.label} Permission`}
+          {authorizeCall.loading
+            ? "Requesting..."
+            : `Request ${
+                permissions.find((p) => p.id === selectedPermission)?.label
+              } Permission`}
         </button>
 
-        {/* Success Message */}
-        {success && (
-          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start">
-            <FiShield className="text-green-500 mt-0.5 mr-3 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-green-800">Success</p>
-              <p className="text-sm text-green-600 mt-1">{success}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Error Message */}
-        {error && (
-          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
-            <FiAlertCircle className="text-red-500 mt-0.5 mr-3 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-red-800">Error</p>
-              <p className="text-sm text-red-600 mt-1">{error}</p>
-            </div>
-          </div>
-        )}
+        <div className="space-y-3 mt-4">
+          {getSettingsCall.feedback && (
+            <StatusMessage
+              type={getSettingsCall.feedback.type}
+              message={getSettingsCall.feedback.message}
+            />
+          )}
+          {authorizeCall.feedback && (
+            <StatusMessage
+              type={authorizeCall.feedback.type}
+              message={authorizeCall.feedback.message}
+            />
+          )}
+        </div>
       </div>
 
       {/* Info Section */}
