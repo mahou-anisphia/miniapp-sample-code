@@ -9,6 +9,7 @@ import { DevicePermissionsPage } from "./pages/permissions/Page";
 import { InteractionPage } from "./pages/interaction/Page";
 import { BaseAPIsPage } from "./pages/base/Page";
 import { MultimediaPage } from "./pages/multimedia/Page";
+import { FilePage } from "./pages/file/Page";
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -40,16 +41,16 @@ function App() {
             {/* Base API */}
             <Route path="/base/*" element={<BaseAPIsPage />} />
 
+            {/* File API */}
+            <Route path="/file/*" element={<FilePage />} />
+
             {/* Placeholder routes for other categories */}
 
             <Route
               path="/navigation/*"
               element={<ComingSoonPage category="Navigation" />}
             />
-            <Route
-              path="/file/*"
-              element={<ComingSoonPage category="File Operations" />}
-            />
+
             <Route
               path="/location/*"
               element={<ComingSoonPage category="Location" />}
