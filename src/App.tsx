@@ -13,6 +13,9 @@ import { FilePage } from "./pages/file/Page";
 import { CookiePage } from "./pages/cookie/Page";
 import { DevicePage } from "./pages/device/Page";
 import { LocationPage } from "./pages/location/Page";
+import { MotionPage } from "./pages/motion/Page";
+import { ScreenPage } from "./pages/screen/Page";
+import { NetworkPage } from "./pages/network/Page";
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -56,6 +59,15 @@ function App() {
             {/* Device API */}
             <Route path="/device/*" element={<DevicePage />} />
 
+            {/* Network API */}
+            <Route path="/network/*" element={<NetworkPage />} />
+
+            {/* Screen API */}
+            <Route path="/screen/*" element={<ScreenPage />} />
+
+            {/* Motion API */}
+            <Route path="/motion/*" element={<MotionPage />} />
+
             {/* Placeholder routes for other categories */}
 
             <Route
@@ -63,18 +75,6 @@ function App() {
               element={<ComingSoonPage category="Navigation" />}
             />
 
-            <Route
-              path="/network/*"
-              element={<ComingSoonPage category="Network" />}
-            />
-            <Route
-              path="/screen/*"
-              element={<ComingSoonPage category="Screen" />}
-            />
-            <Route
-              path="/motion/*"
-              element={<ComingSoonPage category="Motion Detection" />}
-            />
             <Route
               path="/sound/*"
               element={<ComingSoonPage category="Sound" />}
