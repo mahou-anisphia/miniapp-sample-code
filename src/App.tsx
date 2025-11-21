@@ -20,6 +20,9 @@ import { CallPage } from "./pages/call/Page";
 import { ContactsPage } from "./pages/contacts/Page";
 import { AppInfoPage } from "./pages/app/Page";
 import { SoundPage } from "./pages/sound/Page";
+import { BluetoothPage } from "./pages/bluetooth/Page";
+import { BatteryPage } from "./pages/battery/Page";
+import { ScanPage } from "./pages/scan/Page";
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -84,6 +87,15 @@ function App() {
             {/* Contacts API */}
             <Route path="/contacts/*" element={<ContactsPage />} />
 
+            {/* Scan API */}
+            <Route path="/scan/*" element={<ScanPage />} />
+
+            {/* Battery API */}
+            <Route path="/battery/*" element={<BatteryPage />} />
+
+            {/* Bluetooth API */}
+            <Route path="/bluetooth/*" element={<BluetoothPage />} />
+
             {/* Placeholder routes for other categories */}
 
             <Route
@@ -91,18 +103,6 @@ function App() {
               element={<ComingSoonPage category="Navigation" />}
             />
 
-            <Route
-              path="/scan/*"
-              element={<ComingSoonPage category="Scan" />}
-            />
-            <Route
-              path="/battery/*"
-              element={<ComingSoonPage category="Battery" />}
-            />
-            <Route
-              path="/bluetooth/*"
-              element={<ComingSoonPage category="Bluetooth" />}
-            />
             <Route
               path="/events/*"
               element={<ComingSoonPage category="Events" />}
