@@ -16,6 +16,10 @@ import { LocationPage } from "./pages/location/Page";
 import { MotionPage } from "./pages/motion/Page";
 import { ScreenPage } from "./pages/screen/Page";
 import { NetworkPage } from "./pages/network/Page";
+import { CallPage } from "./pages/call/Page";
+import { ContactsPage } from "./pages/contacts/Page";
+import { AppInfoPage } from "./pages/app/Page";
+import { SoundPage } from "./pages/sound/Page";
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -68,6 +72,18 @@ function App() {
             {/* Motion API */}
             <Route path="/motion/*" element={<MotionPage />} />
 
+            {/* Sound API */}
+            <Route path="/sound/*" element={<SoundPage />} />
+
+            {/* Call API */}
+            <Route path="/call/*" element={<CallPage />} />
+
+            {/* App Information API */}
+            <Route path="/app/*" element={<AppInfoPage />} />
+
+            {/* Contacts API */}
+            <Route path="/contacts/*" element={<ContactsPage />} />
+
             {/* Placeholder routes for other categories */}
 
             <Route
@@ -75,22 +91,6 @@ function App() {
               element={<ComingSoonPage category="Navigation" />}
             />
 
-            <Route
-              path="/sound/*"
-              element={<ComingSoonPage category="Sound" />}
-            />
-            <Route
-              path="/call/*"
-              element={<ComingSoonPage category="Call" />}
-            />
-            <Route
-              path="/app/*"
-              element={<ComingSoonPage category="App Information" />}
-            />
-            <Route
-              path="/contacts/*"
-              element={<ComingSoonPage category="Contacts" />}
-            />
             <Route
               path="/scan/*"
               element={<ComingSoonPage category="Scan" />}
