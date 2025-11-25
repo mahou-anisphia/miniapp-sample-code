@@ -74,6 +74,16 @@ const AVAILABLE_SCOPES = [
     label: "auth_user",
     description: "Get complete user account information.",
   },
+  {
+    value: "USER_EMAIL",
+    label: "USER_EMAIL",
+    description: "Get user's email",
+  },
+  {
+    value: "USER_PHONE_NMUMBER",
+    label: "USER_PHONE_NUMBER",
+    description: "Get user's phone number",
+  },
 ];
 
 export const SSOPage: React.FC = () => {
