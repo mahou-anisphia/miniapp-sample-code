@@ -19,12 +19,26 @@ import {
   FiCamera,
   FiZap,
   FiBluetooth,
+  FiCode,
 } from "react-icons/fi";
 
 export const HomePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const featureCategories = [
+    {
+      icon: FiCode,
+      title: "API Playground",
+      description: "Interactive code editor for testing APIs",
+      color: "violet",
+      features: [
+        "Live TypeScript editor",
+        "Execute APIs in real-time",
+        "Error debugging panel",
+        "All WindVane APIs available",
+      ],
+      demoPath: "/playground",
+    },
     {
       icon: FiLock,
       title: "Device Permissions",
@@ -363,7 +377,7 @@ export const HomePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-4xl font-bold text-blue-600 mb-2">21</div>
+              <div className="text-4xl font-bold text-blue-600 mb-2">22</div>
               <div className="text-gray-600">API Categories</div>
             </div>
             <div>

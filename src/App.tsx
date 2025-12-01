@@ -23,6 +23,7 @@ import { SoundPage } from "./pages/sound/Page";
 import { BluetoothPage } from "./pages/bluetooth/Page";
 import { BatteryPage } from "./pages/battery/Page";
 import { ScanPage } from "./pages/scan/Page";
+import { PlaygroundPage } from "./pages/playground/Page";
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -95,6 +96,9 @@ function App() {
 
             {/* Bluetooth API */}
             <Route path="/bluetooth/*" element={<BluetoothPage />} />
+
+            {/* API Playground */}
+            <Route path="/playground" element={<PlaygroundPage />} />
 
             {/* Placeholder routes for other categories */}
 
