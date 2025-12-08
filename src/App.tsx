@@ -23,6 +23,7 @@ import { SoundPage } from "./pages/sound/Page";
 import { BluetoothPage } from "./pages/bluetooth/Page";
 import { BatteryPage } from "./pages/battery/Page";
 import { ScanPage } from "./pages/scan/Page";
+import { NavigationPage } from "./pages/navigation/Page";
 import { PlaygroundPage } from "./pages/playground/Page";
 
 function App() {
@@ -100,12 +101,10 @@ function App() {
             {/* API Playground */}
             <Route path="/playground" element={<PlaygroundPage />} />
 
-            {/* Placeholder routes for other categories */}
+            {/* Navigation API */}
+            <Route path="/navigation/*" element={<NavigationPage />} />
 
-            <Route
-              path="/navigation/*"
-              element={<ComingSoonPage category="Navigation" />}
-            />
+            {/* Placeholder routes for other categories */}
 
             <Route
               path="/events/*"
