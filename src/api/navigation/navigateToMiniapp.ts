@@ -23,8 +23,8 @@ export const navigateToMiniapp = (
     }
 
     window.WindVane.call(
-      "WVNavigator",
-      "navigateToMiniapp",
+      "WVMiniApp",
+      "navigateToMiniApp",
       params,
       () => {
         resolve();
