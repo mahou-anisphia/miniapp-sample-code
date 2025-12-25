@@ -72,16 +72,12 @@ export const ContactsPage: React.FC = () => {
 
   const handleFind = async () => {
     setFoundContacts("");
-    if (!searchName && !searchPhone) {
-      findCall.showFeedback("error", "Please enter name or phone to search");
-      return;
-    }
     const result = await findCall.run(
       () =>
         find({
           filter: {
-            ...(searchName && { name: searchName }),
-            ...(searchPhone && { phone: searchPhone }),
+            name: searchName,
+            phone: searchPhone,
           },
         }),
       {
