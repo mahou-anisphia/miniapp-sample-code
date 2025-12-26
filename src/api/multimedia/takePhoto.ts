@@ -4,6 +4,7 @@ export interface TakePhotoParams {
   mutipleSelection?: "0" | "1";
   maxSelect?: number;
   v?: string;
+  needBase64?: boolean;
 }
 
 export interface PhotoImage {

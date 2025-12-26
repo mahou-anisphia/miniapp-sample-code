@@ -7,6 +7,8 @@ import { StatusMessage } from "../../components/common/StatusMessage";
 
 export const CameraComponent: React.FC = () => {
   const [photoResult, setPhotoResult] = useState("");
+  const [outputFormat, setOutputFormat] = useState<"url" | "base64">("url");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { run, feedback, showFeedback, loading } = useApiCall();
 
   useEffect(() => {
@@ -53,9 +55,11 @@ export const CameraComponent: React.FC = () => {
 
   const handleTakePhoto = async (mode: "camera" | "photo" | "both") => {
     setPhotoResult("");
+    setImagePreview(null);
     try {
+      const needBase64 = outputFormat === "base64";
       const result = await run(
-        () => takePhoto({ mode }),
+        () => takePhoto({ mode, needBase64 }),
         {
           successMessage: "Photo taken successfully",
           errorMessage: () => "",
@@ -64,9 +68,24 @@ export const CameraComponent: React.FC = () => {
       if (!result) {
         return;
       }
-      setPhotoResult(
-        `Photo URL: ${result.url}\nLocal path: ${result.localPath}`
-      );
+
+      // Set text output based on format
+      if (outputFormat === "base64" && result.base64Data) {
+        setPhotoResult(
+          `Base64 Data (first 200 chars): ${result.base64Data.substring(0, 200)}...\n\nFull length: ${result.base64Data.length} characters\n\nLocal path: ${result.localPath}`
+        );
+        // Set image preview for base64
+        const base64WithPrefix = result.base64Data.startsWith("data:image")
+          ? result.base64Data
+          : `data:image/png;base64,${result.base64Data}`;
+        setImagePreview(base64WithPrefix);
+      } else {
+        setPhotoResult(
+          `Photo URL: ${result.url}\nLocal path: ${result.localPath}\n\nNote: The URL is for internal use in Mini App environment (src attribute of <img>).`
+        );
+        // Set image preview for URL
+        setImagePreview(result.url);
+      }
     } catch (err) {
       const errorMsg =
         err instanceof Error ? err.message : "Failed to take photo";
@@ -95,6 +114,42 @@ export const CameraComponent: React.FC = () => {
         <p className="text-xs text-yellow-800">
           <strong>Required Permissions:</strong> Camera (for taking photos) and
           Album (for choosing photos).
+        </p>
+      </div>
+
+      {/* Output Format Selection */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Output Format:
+        </label>
+        <div className="flex gap-4">
+          <label className="flex items-center cursor-pointer">
+            <input
+              type="radio"
+              name="outputFormat"
+              value="url"
+              checked={outputFormat === "url"}
+              onChange={(e) => setOutputFormat(e.target.value as "url" | "base64")}
+              className="mr-2"
+            />
+            <span className="text-sm text-gray-700">URL (for Mini App)</span>
+          </label>
+          <label className="flex items-center cursor-pointer">
+            <input
+              type="radio"
+              name="outputFormat"
+              value="base64"
+              checked={outputFormat === "base64"}
+              onChange={(e) => setOutputFormat(e.target.value as "url" | "base64")}
+              className="mr-2"
+            />
+            <span className="text-sm text-gray-700">Base64 (data URI)</span>
+          </label>
+        </div>
+        <p className="text-xs text-gray-500 mt-1">
+          {outputFormat === "url"
+            ? "URL format returns a local file URL for use in Mini App environment"
+            : "Base64 format returns the image as a data URI string"}
         </p>
       </div>
 
@@ -136,6 +191,37 @@ export const CameraComponent: React.FC = () => {
           <pre className="text-xs text-orange-800 whitespace-pre-wrap">
             {photoResult}
           </pre>
+        </div>
+      )}
+
+      {imagePreview && (
+        <div className="mb-4">
+          <p className="text-sm font-medium text-gray-700 mb-2">
+            Image Preview:
+          </p>
+          <div className="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
+            <img
+              src={imagePreview}
+              alt="Captured or selected"
+              className="max-w-full h-auto rounded-lg shadow-md"
+              onError={(e) => {
+                console.error("Image failed to load:", imagePreview);
+                e.currentTarget.style.display = "none";
+                const errorMsg = document.createElement("p");
+                errorMsg.className = "text-sm text-red-600";
+                errorMsg.textContent =
+                  outputFormat === "url"
+                    ? "Cannot display image: URL is only accessible within Mini App environment"
+                    : "Failed to load base64 image";
+                e.currentTarget.parentElement?.appendChild(errorMsg);
+              }}
+            />
+          </div>
+          <p className="text-xs text-gray-500 mt-2">
+            {outputFormat === "url"
+              ? "This demonstrates how to use the URL in an <img> tag. The URL may only work within the Mini App environment."
+              : "This demonstrates how to display a base64 image using a data URI in the src attribute."}
+          </p>
         </div>
       )}
 
