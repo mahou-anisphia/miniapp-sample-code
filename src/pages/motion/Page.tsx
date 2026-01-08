@@ -11,7 +11,6 @@ import {
 import { startCompass, stopCompass } from "../../api/motion/compass";
 import { useApiCall } from "../../hooks/useApiCall";
 import { StatusMessage } from "../../components/common/StatusMessage";
-import { BackLink } from "../../components/common/BackLink";
 
 export const MotionPage: React.FC = () => {
   const [blowActive, setBlowActive] = useState(false);
@@ -172,7 +171,7 @@ export const MotionPage: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <BackLink />
+      
 
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">

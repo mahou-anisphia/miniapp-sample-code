@@ -25,6 +25,7 @@ import { BatteryPage } from "./pages/battery/Page";
 import { ScanPage } from "./pages/scan/Page";
 import { NavigationPage } from "./pages/navigation/Page";
 import { PlaygroundPage } from "./pages/playground/Page";
+import { BrowserPage } from "./pages/browser/Page";
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -49,6 +50,9 @@ function App() {
 
             {/* Interaction */}
             <Route path="/interaction/*" element={<InteractionPage />} />
+
+            {/* Browser Interaction */}
+            <Route path="/browser" element={<BrowserPage />} />
 
             {/* Multimedia */}
             <Route path="/multimedia/*" element={<MultimediaPage />} />

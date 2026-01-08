@@ -18,7 +18,6 @@ import { prompt } from "../../api/interaction/prompt";
 import { showActionSheet } from "../../api/interaction/showActionSheet";
 import { updateNavBar } from "../../api/interaction/updateNavBar";
 import { getNavBarHeight } from "../../api/interaction/getNavBarHeight";
-import { BackLink } from "../../components/common/BackLink";
 
 export const InteractionPage: React.FC = () => {
   const [error, setError] = useState("");
@@ -200,8 +199,6 @@ export const InteractionPage: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <BackLink />
-
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           UI Interaction

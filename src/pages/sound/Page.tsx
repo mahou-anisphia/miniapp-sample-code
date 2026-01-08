@@ -3,7 +3,6 @@ import { FiVolume2 } from "react-icons/fi";
 import { beep } from "../../api/sound/beep";
 import { useApiCall } from "../../hooks/useApiCall";
 import { StatusMessage } from "../../components/common/StatusMessage";
-import { BackLink } from "../../components/common/BackLink";
 
 export const SoundPage: React.FC = () => {
   const [beepCount, setBeepCount] = useState(1);
@@ -17,7 +16,7 @@ export const SoundPage: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <BackLink />
+      
 
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">

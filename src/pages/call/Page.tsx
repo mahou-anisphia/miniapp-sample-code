@@ -5,7 +5,6 @@ import { call } from "../../api/call/call";
 import { authorize, PermissionScope } from "../../api/permissions/authorize";
 import { useApiCall } from "../../hooks/useApiCall";
 import { StatusMessage } from "../../components/common/StatusMessage";
-import { BackLink } from "../../components/common/BackLink";
 
 export const CallPage: React.FC = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -85,7 +84,7 @@ export const CallPage: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <BackLink />
+      
 
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Phone Call</h1>

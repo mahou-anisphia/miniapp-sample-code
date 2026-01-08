@@ -6,7 +6,6 @@ import { openBrowser } from "../../api/base/openBrowser";
 import { closeMiniApp } from "../../api/base/closeMiniApp";
 import { useApiCall } from "../../hooks/useApiCall";
 import { StatusMessage } from "../../components/common/StatusMessage";
-import { BackLink } from "../../components/common/BackLink";
 
 export const BaseAPIsPage: React.FC = () => {
   const location = useLocation();
@@ -63,8 +62,6 @@ export const BaseAPIsPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <BackLink />
-
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Base APIs</h1>
         <p className="text-gray-600">

@@ -7,7 +7,6 @@ import { find } from "../../api/contacts/find";
 import { addPhoneContact } from "../../api/contacts/addPhoneContact";
 import { useApiCall } from "../../hooks/useApiCall";
 import { StatusMessage } from "../../components/common/StatusMessage";
-import { BackLink } from "../../components/common/BackLink";
 
 export const ContactsPage: React.FC = () => {
   const [authResult, setAuthResult] = useState<string>("");
@@ -125,7 +124,7 @@ export const ContactsPage: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <BackLink />
+      
 
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Address Book</h1>

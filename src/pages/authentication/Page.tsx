@@ -4,7 +4,6 @@ import { clearAuthCache } from "../../api/viettel/dev/clearAuthCache";
 import { copyToClipboard } from "../../api/base/copyToClipboard";
 import { useApiCall } from "../../hooks/useApiCall";
 import { StatusMessage } from "../../components/common/StatusMessage";
-import { BackLink } from "../../components/common/BackLink";
 import {
   FiUser,
   FiKey,
@@ -149,7 +148,7 @@ export const SSOPage: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <BackLink />
+      
 
       {/* Title */}
       <div className="mb-8">

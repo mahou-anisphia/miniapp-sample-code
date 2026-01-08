@@ -3,7 +3,6 @@ import { FiLock } from "react-icons/fi";
 import { authorize, PermissionScope } from "../../api/permissions/authorize";
 import { useApiCall } from "../../hooks/useApiCall";
 import { StatusMessage } from "../../components/common/StatusMessage";
-import { BackLink } from "../../components/common/BackLink";
 import { ImageComponent } from "./ImageComponent";
 import { VideoComponent } from "./VideoComponent";
 import { AudioComponent } from "./AudioComponent";
@@ -32,8 +31,6 @@ export const MultimediaPage: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <BackLink />
-
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Multimedia</h1>
         <p className="text-gray-600">

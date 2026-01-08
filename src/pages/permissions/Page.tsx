@@ -17,7 +17,6 @@ import {
 } from "react-icons/fi";
 import { useApiCall } from "../../hooks/useApiCall";
 import { StatusMessage } from "../../components/common/StatusMessage";
-import { BackLink } from "../../components/common/BackLink";
 
 export const DevicePermissionsPage: React.FC = () => {
   const [permissionStatus, setPermissionStatus] = useState<AuthSetting>({});
@@ -62,7 +61,7 @@ export const DevicePermissionsPage: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <BackLink />
+      
 
       {/* Title */}
       <div className="mb-8">
