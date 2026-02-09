@@ -22,6 +22,7 @@ import {
   FiVolume2,
   FiMonitor,
   FiRotateCw,
+  FiTerminal,
 } from 'react-icons/fi';
 
 export const featureCategories: FeatureCategory[] = [
@@ -652,6 +653,24 @@ export const featureCategories: FeatureCategory[] = [
         path: '/bluetooth/operations',
         status: 'stable',
         tags: ['WVBluetooth.readValue', 'WVBluetooth.writeValue'],
+      },
+    ],
+  },
+  {
+    id: 'custom-jsapi',
+    name: 'Custom JSAPI',
+    description: 'VTDeviceService custom device APIs',
+    icon: FiTerminal,
+    color: 'purple',
+    items: [
+      {
+        id: 'custom-jsapi-main',
+        title: 'VTDeviceService APIs',
+        description: 'Query contacts, manage white list',
+        icon: FiTerminal,
+        path: '/custom-jsapi',
+        status: 'stable',
+        tags: ['VTDeviceService.queryContacts', 'VTDeviceService.addToWhiteList', 'VTDeviceService.removeFromWhiteList'],
       },
     ],
   },

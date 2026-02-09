@@ -1,7 +1,12 @@
+export interface AuthCodeResponse {
+  authCode: string;
+  [key: string]: any;
+}
+
 export const getAuthCode = (
   appId: string,
   scopes: string[] = ["auth_user"]
-): Promise<string> => {
+): Promise<AuthCodeResponse> => {
   return new Promise((resolve, reject) => {
     if (!window.WindVane) {
       reject(
@@ -21,9 +26,9 @@ export const getAuthCode = (
       "wv",
       "getAuthCode",
       params,
-      (result: { authCode: string }) => {
+      (result: AuthCodeResponse) => {
         if (result?.authCode) {
-          resolve(result.authCode);
+          resolve(result);
         } else {
           reject(new Error("No auth code returned"));
         }

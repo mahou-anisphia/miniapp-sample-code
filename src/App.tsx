@@ -26,6 +26,7 @@ import { ScanPage } from "./pages/scan/Page";
 import { NavigationPage } from "./pages/navigation/Page";
 import { PlaygroundPage } from "./pages/playground/Page";
 import { BrowserPage } from "./pages/browser/Page";
+import { CustomJsapiPage } from "./pages/custom-jsapi/Page";
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -104,6 +105,9 @@ function App() {
 
             {/* API Playground */}
             <Route path="/playground" element={<PlaygroundPage />} />
+
+            {/* Custom JSAPI */}
+            <Route path="/custom-jsapi" element={<CustomJsapiPage />} />
 
             {/* Navigation API */}
             <Route path="/navigation/*" element={<NavigationPage />} />

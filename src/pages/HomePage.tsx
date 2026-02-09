@@ -21,6 +21,7 @@ import {
   FiBluetooth,
   FiCode,
   FiArrowLeft,
+  FiTerminal,
 } from "react-icons/fi";
 
 export const HomePage: React.FC = () => {
@@ -293,6 +294,18 @@ export const HomePage: React.FC = () => {
       demoPath: "/bluetooth/scan",
     },
     {
+      icon: FiTerminal,
+      title: "Custom JSAPI",
+      description: "VTDeviceService custom device APIs",
+      color: "violet",
+      features: [
+        "Query contacts with filters",
+        "Add Mini App to white list",
+        "Remove Mini App from white list",
+      ],
+      demoPath: "/custom-jsapi",
+    },
+    {
       icon: FiActivity,
       title: "Other Features",
       description: "App lifecycle and special events",
@@ -391,7 +404,7 @@ export const HomePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-4xl font-bold text-blue-600 mb-2">23</div>
+              <div className="text-4xl font-bold text-blue-600 mb-2">24</div>
               <div className="text-gray-600">API Categories</div>
             </div>
             <div>

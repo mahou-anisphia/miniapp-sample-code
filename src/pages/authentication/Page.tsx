@@ -1,5 +1,8 @@
 import React, { useMemo, useState } from "react";
-import { getAuthCode } from "../../api/authentication/getAuthCode";
+import {
+  getAuthCode,
+  AuthCodeResponse,
+} from "../../api/authentication/getAuthCode";
 import { clearAuthCache } from "../../api/viettel/dev/clearAuthCache";
 import { copyToClipboard } from "../../api/base/copyToClipboard";
 import { useApiCall } from "../../hooks/useApiCall";
@@ -90,7 +93,9 @@ const AVAILABLE_SCOPES = [
 export const SSOPage: React.FC = () => {
   const [appId, setAppId] = useState("");
   const [selectedScopes, setSelectedScopes] = useState(["auth_user"]);
-  const [authCode, setAuthCode] = useState("");
+  const [authResponse, setAuthResponse] = useState<AuthCodeResponse | null>(
+    null
+  );
   const [showScopeDropdown, setShowScopeDropdown] = useState(false);
   const authCall = useApiCall();
   const storageCall = useApiCall();
@@ -118,13 +123,16 @@ export const SSOPage: React.FC = () => {
       return;
     }
 
-    setAuthCode("");
+    setAuthResponse(null);
 
-    const code = await authCall.run(() => getAuthCode(appId, selectedScopes), {
-      successMessage: "Auth code retrieved successfully",
-    });
-    if (code) {
-      setAuthCode(code);
+    const response = await authCall.run(
+      () => getAuthCode(appId, selectedScopes),
+      {
+        successMessage: "Auth code retrieved successfully",
+      }
+    );
+    if (response) {
+      setAuthResponse(response);
     }
   };
 
@@ -135,7 +143,7 @@ export const SSOPage: React.FC = () => {
   };
 
   const handleCopyAuthCode = async () => {
-    await copyCall.run(() => copyToClipboard(authCode), {
+    await copyCall.run(() => copyToClipboard(authResponse?.authCode ?? ""), {
       successMessage: "Auth code copied to clipboard",
     });
   };
@@ -360,8 +368,8 @@ export const SSOPage: React.FC = () => {
           )}
         </div>
 
-        {/* Success Message with Auth Code */}
-        {authCode && (
+        {/* Success Message with Full Response */}
+        {authResponse && (
           <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
             <div className="flex items-start mb-2">
               <FiCheckCircle className="text-green-500 mt-0.5 mr-3 flex-shrink-0" />
@@ -372,12 +380,41 @@ export const SSOPage: React.FC = () => {
                 </p>
               </div>
             </div>
+
+            {/* Full Response Display */}
             <div className="mt-3 p-3 bg-white rounded border border-green-200">
-              <p className="text-xs text-gray-500 mb-1">Auth Code:</p>
-              <code className="text-sm font-mono text-gray-800 break-all">
-                {authCode}
-              </code>
+              <p className="text-xs font-semibold text-gray-500 mb-2">
+                Full JSAPI Response:
+              </p>
+              <div className="space-y-2">
+                {Object.entries(authResponse).map(([key, value]) => (
+                  <div
+                    key={key}
+                    className="flex flex-col border-b border-gray-100 pb-2 last:border-b-0 last:pb-0"
+                  >
+                    <span className="text-xs font-medium text-gray-500">
+                      {key}
+                    </span>
+                    <code className="text-sm font-mono text-gray-800 break-all">
+                      {typeof value === "object"
+                        ? JSON.stringify(value, null, 2)
+                        : String(value)}
+                    </code>
+                  </div>
+                ))}
+              </div>
             </div>
+
+            {/* Raw JSON */}
+            <div className="mt-3 p-3 bg-gray-50 rounded border border-green-200">
+              <p className="text-xs font-semibold text-gray-500 mb-2">
+                Raw JSON:
+              </p>
+              <pre className="text-xs font-mono text-gray-700 whitespace-pre-wrap break-all">
+                {JSON.stringify(authResponse, null, 2)}
+              </pre>
+            </div>
+
             <button
               onClick={handleCopyAuthCode}
               disabled={copyCall.loading}
@@ -410,7 +447,7 @@ export const SSOPage: React.FC = () => {
               ) : (
                 <span className="flex items-center justify-center">
                   <FiCopy className="mr-2" />
-                  Copy returned AuthCode
+                  Copy AuthCode
                 </span>
               )}
             </button>
