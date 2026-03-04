@@ -3,8 +3,8 @@ export const clearAuthCache = (appId: string): Promise<void> => {
     if (!window.WindVane) {
       reject(
         new Error(
-          "WindVane is not available. Please run in Mini App environment."
-        )
+          "WindVane is not available. Please run in Mini App environment.",
+        ),
       );
       return;
     }
@@ -16,7 +16,6 @@ export const clearAuthCache = (appId: string): Promise<void> => {
       "ViettelDevServices",
       "clearCache",
       params,
-      {},
       () => {
         resolve();
       },
@@ -25,10 +24,10 @@ export const clearAuthCache = (appId: string): Promise<void> => {
           new Error(
             error?.msg ||
               JSON.stringify(error) ||
-              "Failed to clear Auth storage"
-          )
+              "Failed to clear Auth storage",
+          ),
         );
-      }
+      },
     );
   });
 };

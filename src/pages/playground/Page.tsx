@@ -15,7 +15,6 @@ const customApiResult = await new Promise((resolve, reject) => {
     "ViettelDevServices",  // Your custom service class
     "clearCache",          // Your custom method
     { appId: "test123" },  // Your custom params
-    {},                    // Options (usually empty object)
     (result) => resolve(result),  // Success callback
     (error) => reject(error)      // Error callback
   );
@@ -47,8 +46,7 @@ export const PlaygroundPage: React.FC = () => {
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
       target: monaco.languages.typescript.ScriptTarget.ES2020,
       allowNonTsExtensions: true,
-      moduleResolution:
-        monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
       module: monaco.languages.typescript.ModuleKind.CommonJS,
       noEmit: true,
       esModuleInterop: true,
@@ -76,7 +74,7 @@ export const PlaygroundPage: React.FC = () => {
       }
       export {};
       `,
-      "file:///windvane.d.ts"
+      "file:///windvane.d.ts",
     );
   };
 
@@ -88,7 +86,7 @@ export const PlaygroundPage: React.FC = () => {
     try {
       // Create an async function from the code
       const AsyncFunction = Object.getPrototypeOf(
-        async function () {}
+        async function () {},
       ).constructor;
 
       // Import all available API functions
@@ -116,9 +114,8 @@ export const PlaygroundPage: React.FC = () => {
           .copyToClipboard,
         canIUse: (await import("../../api/base/canIUse")).canIUse,
         openBrowser: (await import("../../api/base/openBrowser")).openBrowser,
-        setBackgroundColor: (
-          await import("../../api/base/setBackgroundColor")
-        ).setBackgroundColor,
+        setBackgroundColor: (await import("../../api/base/setBackgroundColor"))
+          .setBackgroundColor,
         closeMiniApp: (await import("../../api/base/closeMiniApp"))
           .closeMiniApp,
         isInstall: (await import("../../api/base/isInstall")).isInstall,
@@ -218,9 +215,8 @@ export const PlaygroundPage: React.FC = () => {
         readFile: (await import("../../api/file/readFile")).readFile,
         writeFile: (await import("../../api/file/writeFile")).writeFile,
         getFileInfo: (await import("../../api/file/getFileInfo")).getFileInfo,
-        getDataByFilePath: (
-          await import("../../api/file/getDataByFilePath")
-        ).getDataByFilePath,
+        getDataByFilePath: (await import("../../api/file/getDataByFilePath"))
+          .getDataByFilePath,
 
         // Multimedia
         takePhoto: (await import("../../api/multimedia/takePhoto")).takePhoto,
@@ -246,8 +242,7 @@ export const PlaygroundPage: React.FC = () => {
 
         // Cookie
         readCookie: (await import("../../api/cookie/readCookie")).readCookie,
-        writeCookie: (await import("../../api/cookie/writeCookie"))
-          .writeCookie,
+        writeCookie: (await import("../../api/cookie/writeCookie")).writeCookie,
 
         // Permissions
         authorize: (await import("../../api/permissions/authorize")).authorize,
@@ -298,7 +293,7 @@ export const PlaygroundPage: React.FC = () => {
       // Create function with API context
       const userFunction = new AsyncFunction(
         ...Object.keys(apiContext),
-        processedCode
+        processedCode,
       );
 
       // Execute the function with the API context
@@ -309,7 +304,7 @@ export const PlaygroundPage: React.FC = () => {
         setOutput(
           typeof result === "object"
             ? JSON.stringify(result, null, 2)
-            : String(result)
+            : String(result),
         );
       } else {
         setOutput("Execution completed successfully (no return value)");
@@ -467,25 +462,40 @@ export const PlaygroundPage: React.FC = () => {
               • All WindVane APIs are pre-imported and ready to use (no need for
               import statements)
             </li>
+            <li>• Write your code using async/await syntax for API calls</li>
             <li>
-              • Write your code using async/await syntax for API calls
-            </li>
-            <li>
-              • Use <code className="bg-blue-100 px-1 sm:px-2 py-1 rounded text-xs">return</code>{" "}
+              • Use{" "}
+              <code className="bg-blue-100 px-1 sm:px-2 py-1 rounded text-xs">
+                return
+              </code>{" "}
               to display results in the output panel
             </li>
             <li>
               • Errors will be displayed in the debug panel below the editor
             </li>
             <li>
-              • Example APIs: <code className="bg-blue-100 px-1 sm:px-2 py-1 rounded text-xs">toast</code>,{" "}
-              <code className="bg-blue-100 px-1 sm:px-2 py-1 rounded text-xs">getSystemInfo</code>,{" "}
-              <code className="bg-blue-100 px-1 sm:px-2 py-1 rounded text-xs">getBatteryInfo</code>,{" "}
-              <code className="bg-blue-100 px-1 sm:px-2 py-1 rounded text-xs">getLocation</code>
+              • Example APIs:{" "}
+              <code className="bg-blue-100 px-1 sm:px-2 py-1 rounded text-xs">
+                toast
+              </code>
+              ,{" "}
+              <code className="bg-blue-100 px-1 sm:px-2 py-1 rounded text-xs">
+                getSystemInfo
+              </code>
+              ,{" "}
+              <code className="bg-blue-100 px-1 sm:px-2 py-1 rounded text-xs">
+                getBatteryInfo
+              </code>
+              ,{" "}
+              <code className="bg-blue-100 px-1 sm:px-2 py-1 rounded text-xs">
+                getLocation
+              </code>
             </li>
             <li>
               • <strong>Custom APIs:</strong> Access{" "}
-              <code className="bg-blue-100 px-1 sm:px-2 py-1 rounded text-xs">WindVane</code>{" "}
+              <code className="bg-blue-100 px-1 sm:px-2 py-1 rounded text-xs">
+                WindVane
+              </code>{" "}
               directly to call any custom service
             </li>
           </ul>

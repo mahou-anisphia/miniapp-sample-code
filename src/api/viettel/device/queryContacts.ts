@@ -13,14 +13,14 @@ export interface QueryContactsResult {
 }
 
 export const queryContacts = (
-  params: QueryContactsParams
+  params: QueryContactsParams,
 ): Promise<QueryContactsResult> => {
   return new Promise((resolve, reject) => {
     if (!window.WindVane) {
       reject(
         new Error(
-          "WindVane is not available. Please run in Mini App environment."
-        )
+          "WindVane is not available. Please run in Mini App environment.",
+        ),
       );
       return;
     }
@@ -29,19 +29,16 @@ export const queryContacts = (
       "VTDeviceService",
       "queryContacts",
       params,
-      {},
       (result: QueryContactsResult) => {
         resolve(result);
       },
       (error: any) => {
         reject(
           new Error(
-            error?.msg ||
-              JSON.stringify(error) ||
-              "Failed to query contacts"
-          )
+            error?.msg || JSON.stringify(error) || "Failed to query contacts",
+          ),
         );
-      }
+      },
     );
   });
 };

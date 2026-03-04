@@ -2,15 +2,13 @@ export interface AddToWhiteListParams {
   miniAppId: string;
 }
 
-export const addToWhiteList = (
-  params: AddToWhiteListParams
-): Promise<void> => {
+export const addToWhiteList = (params: AddToWhiteListParams): Promise<void> => {
   return new Promise((resolve, reject) => {
     if (!window.WindVane) {
       reject(
         new Error(
-          "WindVane is not available. Please run in Mini App environment."
-        )
+          "WindVane is not available. Please run in Mini App environment.",
+        ),
       );
       return;
     }
@@ -19,7 +17,6 @@ export const addToWhiteList = (
       "VTDeviceService",
       "addToWhiteList",
       params,
-      {},
       () => {
         resolve();
       },
@@ -28,10 +25,10 @@ export const addToWhiteList = (
           new Error(
             error?.msg ||
               JSON.stringify(error) ||
-              "Failed to add to white list"
-          )
+              "Failed to add to white list",
+          ),
         );
-      }
+      },
     );
   });
 };

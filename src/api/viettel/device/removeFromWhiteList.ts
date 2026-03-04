@@ -3,14 +3,14 @@ export interface RemoveFromWhiteListParams {
 }
 
 export const removeFromWhiteList = (
-  params: RemoveFromWhiteListParams
+  params: RemoveFromWhiteListParams,
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
     if (!window.WindVane) {
       reject(
         new Error(
-          "WindVane is not available. Please run in Mini App environment."
-        )
+          "WindVane is not available. Please run in Mini App environment.",
+        ),
       );
       return;
     }
@@ -19,7 +19,6 @@ export const removeFromWhiteList = (
       "VTDeviceService",
       "removeFromWhiteList",
       params,
-      {},
       () => {
         resolve();
       },
@@ -28,10 +27,10 @@ export const removeFromWhiteList = (
           new Error(
             error?.msg ||
               JSON.stringify(error) ||
-              "Failed to remove from white list"
-          )
+              "Failed to remove from white list",
+          ),
         );
-      }
+      },
     );
   });
 };
