@@ -1,6 +1,6 @@
 {
   "name": "create-emas-miniapp",
-  "version": "0.0.8",
+  "version": "0.1.3",
   "private": true,
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
